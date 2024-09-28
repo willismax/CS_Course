@@ -1,5 +1,18 @@
 # Linux基本指令
 
+[![hackmd-github-sync-badge](https://hackmd.io/yXelGmwnQnyFrkq9MCV1jw/badge)](https://hackmd.io/yXelGmwnQnyFrkq9MCV1jw)
+<!-- linux基本指令教學 ，將在Github codespace進行示範，使學習者能夠透過codespace的終端機以及介面，即早席熟悉linux指令-->
+
+## 目的
+本篇教學將介紹Linux的基本指令，包括`pwd`、`ls`、`cd`、`mkdir`、`touch`、`cp`、`mv`、`rm`、`cat`、`more`、`less`、`head`、`tail`、`grep`、`find`、`tar`、`gzip`、`chmod`、`chown`、`ps`、`top`、`kill`、`ifconfig`、`ping`、`wget`、`ssh`、`clear`、`history`等指令，以及vim和nano編輯器。透過本篇教學，我們將學習如何使用這些指令來操作Linux系統。
+
+## 環境
+- 作業系統：Linux
+- 開發工具：終端機
+- 程式語言：Shell
+- 開發框架：無
+
+
 ## 1. 什麼是Linux
 Linux是一個自由和開放源代碼的類Unix操作系統，是一個基於POSIX和UNIX的多用戶、多任務、支持多線程和多CPU的操作系統。Linux的核心是由林納斯·托瓦茲（Linus Torvalds）在1991年10月5日首次發布。Linux也是一個典型的自由軟體和開放源代碼軟體的範例。Linux也是一個典型的自由軟體和開放源代碼軟體的範例。
 ## 2. Linux基本指令
@@ -148,5 +161,51 @@ $ wget https://www.google.com
 ```shell
 $ ssh user@
 ```
+### 2.27. clear
+`clear`指令用來清除終端機畫面。
+```shell
+$ clear
+```
+### 2.28. history
+`history`指令用來顯示指令歷史。
+```shell
+$ history
+```
+
+## 編輯器
+### vim
+`vim`是一個強大的文本編輯器，可以用來編輯各種文本檔案。
+```shell
+$ vim test.txt
+```
+- 按`i`進入編輯模式
+- 編輯完成後按`Esc`退出編輯模式
+- 輸入`:wq`保存並退出
+- 輸入`:q!`不保存並退出
+- 輸入`:w`保存
+- 輸入`:q`退出
+- 輸入`:set nu`顯示行號
+- 輸入`:set nonu`隱藏行號
+- 按`Shift + G`跳轉到最後一行
+- 按`gg`跳轉到第一行
+- 按`/`進入搜尋模式
+- 按`n`跳轉到下一個搜尋結果
+- 按`N`跳轉到上一個搜尋結果
+- 按`dd`刪除一行
+- 按`yy`複製一行
+- 按`p`粘貼
+- 按`u`撤銷
+- 按`Ctrl + r`重做
+- 按`Shift + v`進入可視模式
+
+### nano
+`nano`是一個簡單的文本編輯器，可以用來編輯各種文本檔案。
+```shell
+$ nano test.txt
+```
+- 按`Ctrl + O`保存
+- 按`Ctrl + X`退出
+- 按`Ctrl + G`顯示幫助
+
 ## 3. 結論
-透過本篇教學，我們學習了Linux的基本指令，包括`pwd`、`ls`、`cd`、`mkdir`、`touch`、`cp`、`mv`、`rm`、`cat`、`more`、`less`、`head`、`tail`、`grep`、`find`、`tar`、`gzip`、`chmod`、`chown`、`ps`、`top`、`kill`、`ifconfig`、`ping`、`wget`、`ssh`等指令。這些指令是Linux操作系統中最基本的指令，對於初學者來說非常重要。希望本篇教學能夠幫助大家更好地理解和使用Linux操作系統。
+透過本篇教學，我們學習了Linux的基本指令，包括`pwd`、`ls`、`cd`、`mkdir`、`touch`、`cp`、`mv`、`rm`、`cat`、`more`、`less`、`head`、`tail`、`grep`、`find`、`tar`、`gzip`、`chmod`、`chown`、`ps`、`top`、`kill`、`ifconfig`、`ping`、`wget`、`ssh`、`clear`、`history`等指令，以及vim和nano編輯器。這些指令是Linux操作系統中最基本的指令，對於初學者來說非常重要。希望本篇教學能夠幫助大家更好地理解和使用Linux操作系統。
