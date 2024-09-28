@@ -172,6 +172,25 @@ $ clear
 $ history
 ```
 
+### 2.29. man
+`man`指令用來查看指令的說明文件。
+```shell
+$ man ls
+```
+
+### 2.30. clear
+`clear`指令用來清除終端機畫面。
+```shell
+$ clear
+```
+
+### 2.31. apt-get
+`apt-get`指令用來安裝和管理軟體包。
+```shell
+$ sudo apt-get install package
+```
+
+
 ## 編輯器
 ### vim
 `vim`是一個強大的文本編輯器，可以用來編輯各種文本檔案。
