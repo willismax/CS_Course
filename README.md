@@ -33,3 +33,75 @@
 1. 在GitHub中打開此專案
 2. 點擊 "Code" 按鈕並選擇 "Open with Codespaces"
 3. 等待Codespace環境配置完成後，即可開始使用
+
+## Git指令及Pull Request教學
+
+### 簡介
+Git是一個分散式版本控制系統，GitHub是一個基於Git的代碼託管平台。使用Git和GitHub可以方便地管理和協作開發代碼。
+
+### 常用Git指令
+以下是一些常用的Git指令及其說明：
+
+1. 初始化一個新的Git倉庫
+   ```shell
+   git init
+   ```
+
+2. 克隆一個現有的Git倉庫
+   ```shell
+   git clone <repository_url>
+   ```
+
+3. 添加文件到暫存區
+   ```shell
+   git add <file_name>
+   ```
+
+4. 提交更改
+   ```shell
+   git commit -m "commit message"
+   ```
+
+5. 推送更改到遠程倉庫
+   ```shell
+   git push origin <branch_name>
+   ```
+
+6. 拉取遠程倉庫的更改
+   ```shell
+   git pull origin <branch_name>
+   ```
+
+7. 查看當前倉庫的狀態
+   ```shell
+   git status
+   ```
+
+8. 查看提交歷史
+   ```shell
+   git log
+   ```
+
+### 創建Pull Request
+Pull Request（PR）是一種在GitHub上提交代碼更改的方式。以下是創建PR的步驟：
+
+1. 在GitHub上fork一個倉庫
+2. 克隆fork後的倉庫到本地
+   ```shell
+   git clone <forked_repository_url>
+   ```
+3. 創建一個新的分支
+   ```shell
+   git checkout -b <new_branch_name>
+   ```
+4. 在新分支上進行代碼更改並提交
+   ```shell
+   git add <file_name>
+   git commit -m "commit message"
+   ```
+5. 推送新分支到GitHub
+   ```shell
+   git push origin <new_branch_name>
+   ```
+6. 在GitHub上打開原始倉庫，點擊 "Compare & pull request" 按鈕
+7. 填寫PR的標題和描述，然後點擊 "Create pull request" 按鈕
