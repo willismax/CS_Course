@@ -26,11 +26,15 @@
 ### 二子樹說明
 詳見[Binary_Tree_Explanation.md](Binary_Tree_Explanation.md)
 
+### 資訊安全課程
+詳見[Information_Security_Course.md](Information_Security_Course.md)
+
 ## 相關文件
 - [Linux基本指令教學](Linus基本指令.md)
 - [OpenAI API使用範例](OpenAI_Demo.ipynb)
 - [Docker 教學](Docker_Tutorial.md)
 - [二子樹說明](Binary_Tree_Explanation.md)
+- [資訊安全課程](Information_Security_Course.md)
 
 ## 在VS Code中的使用
 1. 打開VS Code並安裝Python擴展
