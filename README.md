@@ -35,6 +35,7 @@
 - [Docker 教學](Docker_Tutorial.md)
 - [二子樹說明](Binary_Tree_Explanation.md)
 - [資訊安全課程](Information_Security_Course.md)
+- [SQL 教學](SQL_Tutorial.md)
 
 ## 在VS Code中的使用
 1. 打開VS Code並安裝Python擴展
