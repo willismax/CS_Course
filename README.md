@@ -118,3 +118,7 @@ Pull Request（PR）是一種在GitHub上提交代碼更改的方式。以下是
    ```
 6. 在GitHub上打開原始倉庫，點擊 "Compare & pull request" 按鈕
 7. 填寫PR的標題和描述，然後點擊 "Create pull request" 按鈕
+
+## GitHub Pages 介面
+
+此倉庫現在包含一個 GitHub Pages 介面，用於將課程材料作為一系列文章卡片進行瀏覽。您可以訪問 GitHub Pages 網站 [這裡](https://willismax.github.io/CS_Course/)。
