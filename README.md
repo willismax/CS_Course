@@ -29,6 +29,9 @@
 ### 資訊安全課程
 詳見[Information_Security_Course.md](Information_Security_Course.md)
 
+### XSS 安全演示
+詳見[xss-security-demo.tsx](xss-security-demo.tsx)
+
 ## 相關文件
 - [Linux基本指令教學](Linus基本指令.md)
 - [OpenAI API使用範例](OpenAI_Demo.ipynb)
@@ -36,6 +39,7 @@
 - [二子樹說明](Binary_Tree_Explanation.md)
 - [資訊安全課程](Information_Security_Course.md)
 - [SQL 教學](SQL_Tutorial.md)
+- [XSS 安全演示](xss-security-demo.tsx)
 
 ## 在VS Code中的使用
 1. 打開VS Code並安裝Python擴展
@@ -122,3 +126,5 @@ Pull Request（PR）是一種在GitHub上提交代碼更改的方式。以下是
 ## GitHub Pages 介面
 
 此倉庫現在包含一個 GitHub Pages 介面，用於將課程材料作為一系列文章卡片進行瀏覽。您可以訪問 GitHub Pages 網站 [這裡](https://willismax.github.io/CS_Course/)。
+
+<a href="https://github.com/willismax/CS_Course" class="btn btn-primary">View on GitHub</a>
