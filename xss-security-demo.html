@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self';">
+    <title>XSS Security Demo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .card {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            padding: 20px;
+        }
+        .card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .card-title {
+            font-size: 1.5em;
+            margin: 0;
+        }
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            margin: 5px;
+            border: 1px solid #007bff;
+            border-radius: 4px;
+            background-color: #007bff;
+            color: #fff;
+            text-align: center;
+            cursor: pointer;
+        }
+        .button-outline {
+            background-color: #fff;
+            color: #007bff;
+        }
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #ddd;
+        }
+        .tabs button {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-size: 1em;
+        }
+        .tabs button.active {
+            border-bottom: 2px solid #007bff;
+            font-weight: bold;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        pre {
+            background-color: #f8f8f8;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-center">XSS Security Demo</h1>
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">防禦技術選擇</h2>
+            </div>
+            <div class="card-content">
+                <div id="defense-buttons"></div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">防禦技術詳細說明</h2>
+            </div>
+            <div class="card-content" id="defense-details">
+                <p>選擇一種防禦技術以查看詳細說明</p>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">安全實踐指南</h2>
+            </div>
+            <div class="card-content">
+                <div class="tabs">
+                    <button class="tab-button active" data-tab="principles">安全原則</button>
+                    <button class="tab-button" data-tab="checklist">檢查清單</button>
+                    <button class="tab-button" data-tab="tools">推薦工具</button>
+                </div>
+                <div id="principles" class="tab-content active">
+                    <h3>網路安全基本原則</h3>
+                    <ul>
+                        <li>最小權限原則</li>
+                        <li>深度防禦策略</li>
+                        <li>持續安全更新</li>
+                        <li>安全意識培訓</li>
+                    </ul>
+                </div>
+                <div id="checklist" class="tab-content">
+                    <h3>XSS防禦檢查清單</h3>
+                    <ul>
+                        <li>驗證所有用戶輸入</li>
+                        <li>實施內容安全策略(CSP)</li>
+                        <li>使用安全的輸出編碼</li>
+                        <li>限制Cookie存取</li>
+                        <li>定期進行安全掃描</li>
+                    </ul>
+                </div>
+                <div id="tools" class="tab-content">
+                    <h3>安全檢測工具</h3>
+                    <ul>
+                        <li>OWASP ZAP</li>
+                        <li>Burp Suite</li>
+                        <li>Acunetix</li>
+                        <li>Nessus</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        const defenseMethods = [
+            {
+                name: 'HTML轉義',
+                code: `// JavaScript HTML轉義函式
+function escapeHTML(unsafe) {
+  return unsafe
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+// React使用範例
+const safeContent = escapeHTML(userInput);`,
+                description: '將特殊字符轉換為安全的HTML實體，防止腳本執行',
+                benefit: '阻止大多數基本XSS攻擊'
+            },
+            {
+                name: '內容安全策略(CSP)',
+                code: `// HTML Meta標籤設定
+<meta http-equiv="Content-Security-Policy" 
+      content="default-src 'self'; 
+              script-src 'self' 'nonce-random123'; 
+              style-src 'self';">
+
+// Apache .htaccess設定
+Header set Content-Security-Policy "default-src 'self';"
+
+// Nginx 配置
+add_header Content-Security-Policy "default-src 'self';";`,
+                description: '限制可載入的資源來源，阻止未授權腳本',
+                benefit: '全面控制網頁資源載入'
+            },
+            {
+                name: 'HttpOnly Cookie',
+                code: `// PHP設定
+setcookie("session_id", $token, [
+    'httponly' => true,
+    'secure' => true,
+    'samesite' => 'Strict'
+]);
+
+// Node.js Express設定
+res.cookie('session_id', token, {
+    httpOnly: true,
+    secure: true,
+    sameSite: 'strict'
+});`,
+                description: '設置Cookie不可被客戶端腳本存取',
+                benefit: '防止Cookie被XSS腳本竊取'
+            },
+            {
+                name: '輸入驗證',
+                code: `// JavaScript驗證範例
+function validateInput(input) {
+  // 只允許特定字符
+  const sanitizedInput = input.replace(/[<>'"]/g, '');
+  
+  // 使用白名單驗證
+  const allowedPattern = /^[a-zA-Z0-9\s]+$/;
+  return allowedPattern.test(sanitizedInput);
+}
+
+// React組件範例
+const handleSubmit = (e) => {
+  const userInput = e.target.value;
+  if (validateInput(userInput)) {
+    // 處理安全的輸入
+  } else {
+    // 阻止可疑輸入
+    alert('輸入包含不安全字符');
+  }
+}`,
+                description: '限制和過濾使用者輸入',
+                benefit: '主動阻絕潛在威脅'
+            }
+        ];
+
+        const defenseButtonsContainer = document.getElementById('defense-buttons');
+        const defenseDetailsContainer = document.getElementById('defense-details');
+
+        defenseMethods.forEach((method, index) => {
+            const button = document.createElement('button');
+            button.className = 'button button-outline';
+            button.textContent = method.name;
+            button.onclick = () => {
+                defenseDetailsContainer.innerHTML = `
+                    <h3>${method.name}</h3>
+                    <p>${method.description}</p>
+                    <div>
+                        <h4>實作代碼:</h4>
+                        <pre>${method.code}</pre>
+                    </div>
+                    <div>
+                        <h4>防禦優勢:</h4>
+                        <p>${method.benefit}</p>
+                    </div>
+                `;
+            };
+            defenseButtonsContainer.appendChild(button);
+        });
+
+        const tabButtons = document.querySelectorAll('.tab-button');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        tabButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                tabButtons.forEach(btn => btn.classList.remove('active'));
+                tabContents.forEach(content => content.classList.remove('active'));
+
+                button.classList.add('active');
+                document.getElementById(button.getAttribute('data-tab')).classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>
