@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8">
+  <title>XSS安全防禦教學</title>
+  
+
+</head>
+<body>
+<!-- partial:index.partial.html -->
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <title>XSS安全防禦教育示範</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100">
+  <div class="container mx-auto p-6">
+    <h1 class="text-3xl font-bold text-center mb-6">XSS安全防禦教學</h1>
+    
+    <div class="grid md:grid-cols-2 gap-6">
+      <!-- 攻擊模擬區域 -->
+      <div class="bg-white p-4 rounded-lg shadow">
+        <h2 class="text-xl font-semibold mb-4">XSS攻擊模擬</h2>
+        <div id="attackButtons" class="grid grid-cols-2 gap-2 mb-4">
+          <!-- 動態生成攻擊按鈕 -->
+        </div>
+        <div id="displayContent" class="border p-3 rounded-md bg-gray-50">
+          顯示內容將在此呈現
+        </div>
+      </div>
+      
+      <!-- 安全防禦區域 -->
+      <div class="bg-white p-4 rounded-lg shadow">
+        <h2 class="text-xl font-semibold mb-4">安全防禦</h2>
+        <button id="toggleSecurityBtn" class="w-full mb-4 bg-blue-500 text-white py-2 rounded">
+          切換安全模式
+        </button>
+        
+        <div id="securityLogs" class="bg-gray-50 p-3 rounded-md">
+          安全日誌
+        </div>
+      </div>
+    </div>
+
+    <!-- 防禦詳細說明 -->
+    <div class="mt-6 bg-white p-4 rounded-lg shadow">
+      <h2 class="text-xl font-semibold mb-4">XSS安全防禦說明</h2>
+      <div id="defenseDetails">
+        <!-- 將在JS中動態填充 -->
+      </div>
+    </div>
+  </div>
+</body>
+</html>
+<!-- partial -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+  // 攻擊腳本集合
+  const maliciousScripts = [
+    {
+      name: '彈出惡意訊息',
+      script: '<script>alert("您的帳號已被入侵!");</script>',
+      description: '彈出欺騙性警告訊息'  
+    },
+    {
+      name: '竊取Cookie',
+      script: '<script>document.write("已竊取Cookie: " + document.cookie);</script>',
+      description: '模擬竊取使用者身份驗證資訊'
+    },
+    {
+      name: '重定向網頁',
+      script: '<script>window.location.href="https://惡意網站.com";</script>',
+      description: '強制跳轉至惡意網站'
+    },
+    {
+      name: '插入惡意連結',
+      script: '<a href="https://惡意網站.com" style="color:red;">點擊查看重要訊息</a>',
+      description: '誘導使用者點擊惡意連結'
+    }
+  ];
+
+  // 初始化
+  const attackButtons = document.getElementById('attackButtons');
+  const displayContent = document.getElementById('displayContent');
+  const securityLogs = document.getElementById('securityLogs');
+  const toggleSecurityBtn = document.getElementById('toggleSecurityBtn');
+  const defenseDetails = document.getElementById('defenseDetails');
+
+  let isSecureMode = false;
+
+  // 生成攻擊按鈕
+  maliciousScripts.forEach((script, index) => {
+    const button = document.createElement('button');
+    button.textContent = script.name;
+    button.className = 'bg-red-500 text-white py-2 rounded';
+    button.onclick = () => simulateXSSAttack(script);
+    attackButtons.appendChild(button);
+  });
+
+  // XSS攻擊模擬
+  function simulateXSSAttack(scriptObj) {
+    if (isSecureMode) {
+      // 安全模式：HTML轉義
+      const safeContent = escapeHTML(scriptObj.script);
+      displayContent.innerHTML = safeContent;
+      logSecurityEvent('安全模式', '輸入已安全轉義');
+    } else {
+      // 不安全模式：直接執行
+      displayContent.innerHTML = scriptObj.script;
+      logSecurityEvent('危險模式', '原始腳本被執行');
+      
+      // 模擬攻擊影響
+      alert(scriptObj.description);
+    }
+  }
+
+  // HTML轉義函式
+  function escapeHTML(unsafe) {
+    return unsafe
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
+
+  // 記錄安全事件
+  function logSecurityEvent(type, message) {
+    const logEntry = document.createElement('div');
+    logEntry.innerHTML = `
+      <div class="${type === '危險模式' ? 'text-red-600' : 'text-green-600'}">
+        ${type}: ${message} - ${new Date().toLocaleString()}
+      </div>
+    `;
+    securityLogs.insertBefore(logEntry, securityLogs.firstChild);
+  }
+
+  // 切換安全模式
+  toggleSecurityBtn.addEventListener('click', function() {
+    isSecureMode = !isSecureMode;
+    this.textContent = isSecureMode ? '關閉安全模式' : '啟用安全模式';
+    this.className = isSecureMode 
+      ? 'w-full mb-4 bg-green-500 text-white py-2 rounded'
+      : 'w-full mb-4 bg-blue-500 text-white py-2 rounded';
+    
+    // 清空顯示內容和日誌
+    displayContent.innerHTML = '顯示內容將在此呈現';
+    securityLogs.innerHTML = '安全日誌';
+  });
+
+  // 防禦詳細說明
+  defenseDetails.innerHTML = `
+    <div class="grid md:grid-cols-2 gap-4">
+      <div>
+        <h3 class="font-semibold mb-2">XSS防禦方法</h3>
+        <ul class="list-disc pl-5">
+          <li>HTML轉義</li>
+          <li>輸入驗證</li>
+          <li>內容安全策略(CSP)</li>
+          <li>HttpOnly Cookie</li>
+        </ul>
+      </div>
+      <div>
+        <h3 class="font-semibold mb-2">安全建議</h3>
+        <ul class="list-disc pl-5">
+          <li>嚴格驗證用戶輸入</li>
+          <li>限制腳本執行</li>
+          <li>使用安全框架</li>
+          <li>定期安全審查</li>
+        </ul>
+      </div>
+    </div>
+  `;
+});
+  </script>
+
+</body>
+</html>
