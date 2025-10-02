@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Python Set 集合運算教學</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            box-sizing: border-box;
+        }
+        .set-visual {
+            transition: all 0.3s ease;
+        }
+        .highlight {
+            animation: pulse 1s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <!-- 標題 -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-indigo-800 mb-4">🐍 Python Set 集合運算教學</h1>
+            <p class="text-lg text-gray-700">互動式學習 Python 集合的各種運算函數</p>
+        </div>
+
+        <!-- 集合輸入區 -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4">📝 設定您的集合</h2>
+            <div class="grid md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">集合 s1 (用逗號分隔)</label>
+                    <input type="text" id="set1Input" value="1, 2, 3, 4, 5" 
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                    <div class="mt-2 p-3 bg-blue-50 rounded-lg">
+                        <span class="text-sm text-gray-600">s1 = </span>
+                        <span id="set1Display" class="font-mono text-blue-700">{1, 2, 3, 4, 5}</span>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">集合 s2 (用逗號分隔)</label>
+                    <input type="text" id="set2Input" value="4, 5, 6, 7, 8" 
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                    <div class="mt-2 p-3 bg-green-50 rounded-lg">
+                        <span class="text-sm text-gray-600">s2 = </span>
+                        <span id="set2Display" class="font-mono text-green-700">{4, 5, 6, 7, 8}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 運算按鈕區 -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4">🔧 集合運算函數</h2>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <button onclick="performOperation('isdisjoint')" 
+                        class="bg-purple-500 hover:bg-purple-600 text-white px-4 py-3 rounded-lg font-medium transition-colors">
+                    isdisjoint()
+                </button>
+                <button onclick="performOperation('issubset')" 
+                        class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-3 rounded-lg font-medium transition-colors">
+                    issubset()
+                </button>
+                <button onclick="performOperation('issuperset')" 
+                        class="bg-green-500 hover:bg-green-600 text-white px-4 py-3 rounded-lg font-medium transition-colors">
+                    issuperset()
+                </button>
+                <button onclick="performOperation('difference')" 
+                        class="bg-red-500 hover:bg-red-600 text-white px-4 py-3 rounded-lg font-medium transition-colors">
+                    difference()
+                </button>
+                <button onclick="performOperation('intersection')" 
+                        class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-3 rounded-lg font-medium transition-colors">
+                    intersection()
+                </button>
+                <button onclick="performOperation('symmetric_difference')" 
+                        class="bg-pink-500 hover:bg-pink-600 text-white px-4 py-3 rounded-lg font-medium transition-colors">
+                    symmetric_difference()
+                </button>
+                <button onclick="performOperation('union')" 
+                        class="bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-3 rounded-lg font-medium transition-colors">
+                    union()
+                </button>
+                <button onclick="clearResult()" 
+                        class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-3 rounded-lg font-medium transition-colors">
+                    清除結果
+                </button>
+            </div>
+        </div>
+
+        <!-- 結果顯示區 -->
+        <div id="resultSection" class="bg-white rounded-xl shadow-lg p-6 mb-8 hidden">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4">📊 運算結果</h2>
+            <div class="space-y-4">
+                <div class="p-4 bg-gray-50 rounded-lg">
+                    <div class="text-lg font-mono" id="operationCode"></div>
+                </div>
+                <div class="p-4 bg-gradient-to-r from-blue-50 to-green-50 rounded-lg">
+                    <div class="text-xl font-semibold" id="operationResult"></div>
+                </div>
+                <div class="text-sm text-gray-600" id="operationExplanation"></div>
+            </div>
+        </div>
+
+        <!-- 視覺化區域 -->
+        <div id="visualSection" class="bg-white rounded-xl shadow-lg p-6 mb-8 hidden">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4">👁️ 視覺化展示</h2>
+            <div class="flex justify-center">
+                <svg width="400" height="300" viewBox="0 0 400 300" class="border rounded-lg">
+                    <!-- 集合 s1 圓圈 -->
+                    <circle id="circle1" cx="150" cy="150" r="80" fill="rgba(59, 130, 246, 0.3)" stroke="#3b82f6" stroke-width="2"/>
+                    <text x="120" y="100" fill="#1e40af" font-weight="bold" font-size="14">s1</text>
+                    
+                    <!-- 集合 s2 圓圈 -->
+                    <circle id="circle2" cx="250" cy="150" r="80" fill="rgba(34, 197, 94, 0.3)" stroke="#22c55e" stroke-width="2"/>
+                    <text x="280" y="100" fill="#15803d" font-weight="bold" font-size="14">s2</text>
+                    
+                    <!-- 元素顯示 -->
+                    <g id="elements"></g>
+                </svg>
+            </div>
+        </div>
+
+        <!-- 說明區 -->
+        <div class="bg-white rounded-xl shadow-lg p-6">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4">📚 函數說明</h2>
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="space-y-4">
+                    <div class="p-4 border-l-4 border-purple-500 bg-purple-50">
+                        <h3 class="font-semibold text-purple-800">isdisjoint()</h3>
+                        <p class="text-sm text-gray-700">檢查兩個集合是否無共同元素，無共同元素時回傳 True</p>
+                    </div>
+                    <div class="p-4 border-l-4 border-blue-500 bg-blue-50">
+                        <h3 class="font-semibold text-blue-800">issubset()</h3>
+                        <p class="text-sm text-gray-700">檢查 s1 是否為 s2 的子集合</p>
+                    </div>
+                    <div class="p-4 border-l-4 border-green-500 bg-green-50">
+                        <h3 class="font-semibold text-green-800">issuperset()</h3>
+                        <p class="text-sm text-gray-700">檢查 s1 是否為 s2 的父集合</p>
+                    </div>
+                    <div class="p-4 border-l-4 border-red-500 bg-red-50">
+                        <h3 class="font-semibold text-red-800">difference()</h3>
+                        <p class="text-sm text-gray-700">差集運算，等同於 s1 - s2，回傳在 s1 但不在 s2 的元素</p>
+                    </div>
+                </div>
+                <div class="space-y-4">
+                    <div class="p-4 border-l-4 border-yellow-500 bg-yellow-50">
+                        <h3 class="font-semibold text-yellow-800">intersection()</h3>
+                        <p class="text-sm text-gray-700">交集運算，等同於 s1 & s2，回傳兩集合共同的元素</p>
+                    </div>
+                    <div class="p-4 border-l-4 border-pink-500 bg-pink-50">
+                        <h3 class="font-semibold text-pink-800">symmetric_difference()</h3>
+                        <p class="text-sm text-gray-700">對稱差集，等同於 s1 ^ s2，回傳不在交集中的所有元素</p>
+                    </div>
+                    <div class="p-4 border-l-4 border-indigo-500 bg-indigo-50">
+                        <h3 class="font-semibold text-indigo-800">union()</h3>
+                        <p class="text-sm text-gray-700">聯集運算，等同於 s1 | s2，回傳兩集合所有元素的組合</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentSet1 = new Set([1, 2, 3, 4, 5]);
+        let currentSet2 = new Set([4, 5, 6, 7, 8]);
+
+        // 更新集合顯示
+        function updateSetDisplays() {
+            document.getElementById('set1Display').textContent = `{${Array.from(currentSet1).sort((a,b) => a-b).join(', ')}}`;
+            document.getElementById('set2Display').textContent = `{${Array.from(currentSet2).sort((a,b) => a-b).join(', ')}}`;
+        }
+
+        // 解析輸入的集合
+        function parseSet(input) {
+            try {
+                const elements = input.split(',').map(item => {
+                    const trimmed = item.trim();
+                    // 嘗試轉換為數字，如果失敗則保持為字串
+                    const num = Number(trimmed);
+                    return isNaN(num) ? trimmed : num;
+                }).filter(item => item !== '');
+                return new Set(elements);
+            } catch (e) {
+                return new Set();
+            }
+        }
+
+        // 監聽輸入變化
+        document.getElementById('set1Input').addEventListener('input', function(e) {
+            currentSet1 = parseSet(e.target.value);
+            updateSetDisplays();
+        });
+
+        document.getElementById('set2Input').addEventListener('input', function(e) {
+            currentSet2 = parseSet(e.target.value);
+            updateSetDisplays();
+        });
+
+        // 執行運算
+        function performOperation(operation) {
+            const resultSection = document.getElementById('resultSection');
+            const visualSection = document.getElementById('visualSection');
+            const operationCode = document.getElementById('operationCode');
+            const operationResult = document.getElementById('operationResult');
+            const operationExplanation = document.getElementById('operationExplanation');
+
+            let result, code, explanation;
+
+            switch(operation) {
+                case 'isdisjoint':
+                    result = isDisjoint(currentSet1, currentSet2);
+                    code = 's1.isdisjoint(s2)';
+                    explanation = result ? '兩個集合沒有共同元素' : '兩個集合有共同元素';
+                    break;
+                case 'issubset':
+                    result = isSubset(currentSet1, currentSet2);
+                    code = 's1.issubset(s2)';
+                    explanation = result ? 's1 是 s2 的子集合' : 's1 不是 s2 的子集合';
+                    break;
+                case 'issuperset':
+                    result = isSuperset(currentSet1, currentSet2);
+                    code = 's1.issuperset(s2)';
+                    explanation = result ? 's1 是 s2 的父集合' : 's1 不是 s2 的父集合';
+                    break;
+                case 'difference':
+                    result = difference(currentSet1, currentSet2);
+                    code = 's1.difference(s2) 或 s1 - s2';
+                    explanation = '在 s1 中但不在 s2 中的元素';
+                    break;
+                case 'intersection':
+                    result = intersection(currentSet1, currentSet2);
+                    code = 's1.intersection(s2) 或 s1 & s2';
+                    explanation = '兩個集合共同的元素';
+                    break;
+                case 'symmetric_difference':
+                    result = symmetricDifference(currentSet1, currentSet2);
+                    code = 's1.symmetric_difference(s2) 或 s1 ^ s2';
+                    explanation = '在 s1 或 s2 中，但不在兩者交集中的元素';
+                    break;
+                case 'union':
+                    result = union(currentSet1, currentSet2);
+                    code = 's1.union(s2) 或 s1 | s2';
+                    explanation = '兩個集合所有元素的組合';
+                    break;
+            }
+
+            operationCode.textContent = code;
+            
+            if (typeof result === 'boolean') {
+                operationResult.textContent = `結果: ${result}`;
+                operationResult.className = result ? 'text-xl font-semibold text-green-600' : 'text-xl font-semibold text-red-600';
+            } else {
+                const resultArray = Array.from(result).sort((a,b) => a-b);
+                operationResult.textContent = `結果: {${resultArray.join(', ')}}`;
+                operationResult.className = 'text-xl font-semibold text-blue-600';
+            }
+            
+            operationExplanation.textContent = explanation;
+
+            resultSection.classList.remove('hidden');
+            
+            // 顯示視覺化（僅對集合運算）
+            if (typeof result !== 'boolean') {
+                visualizeSetOperation(operation, result);
+                visualSection.classList.remove('hidden');
+            } else {
+                visualSection.classList.add('hidden');
+            }
+        }
+
+        // 集合運算函數
+        function isDisjoint(set1, set2) {
+            for (let item of set1) {
+                if (set2.has(item)) return false;
+            }
+            return true;
+        }
+
+        function isSubset(set1, set2) {
+            for (let item of set1) {
+                if (!set2.has(item)) return false;
+            }
+            return true;
+        }
+
+        function isSuperset(set1, set2) {
+            for (let item of set2) {
+                if (!set1.has(item)) return false;
+            }
+            return true;
+        }
+
+        function difference(set1, set2) {
+            const result = new Set();
+            for (let item of set1) {
+                if (!set2.has(item)) result.add(item);
+            }
+            return result;
+        }
+
+        function intersection(set1, set2) {
+            const result = new Set();
+            for (let item of set1) {
+                if (set2.has(item)) result.add(item);
+            }
+            return result;
+        }
+
+        function symmetricDifference(set1, set2) {
+            const result = new Set();
+            for (let item of set1) {
+                if (!set2.has(item)) result.add(item);
+            }
+            for (let item of set2) {
+                if (!set1.has(item)) result.add(item);
+            }
+            return result;
+        }
+
+        function union(set1, set2) {
+            const result = new Set(set1);
+            for (let item of set2) {
+                result.add(item);
+            }
+            return result;
+        }
+
+        // 視覺化集合運算
+        function visualizeSetOperation(operation, result) {
+            const elementsGroup = document.getElementById('elements');
+            elementsGroup.innerHTML = '';
+
+            // 重置圓圈顏色
+            document.getElementById('circle1').setAttribute('fill', 'rgba(59, 130, 246, 0.3)');
+            document.getElementById('circle2').setAttribute('fill', 'rgba(34, 197, 94, 0.3)');
+
+            const allElements = new Set([...currentSet1, ...currentSet2]);
+            let index = 0;
+
+            for (let element of allElements) {
+                const inSet1 = currentSet1.has(element);
+                const inSet2 = currentSet2.has(element);
+                const inResult = result.has(element);
+
+                let x, y, color;
+
+                if (inSet1 && inSet2) {
+                    // 交集區域
+                    x = 200;
+                    y = 150 + (index % 3 - 1) * 15;
+                } else if (inSet1) {
+                    // 只在 s1
+                    x = 120;
+                    y = 150 + (index % 3 - 1) * 15;
+                } else {
+                    // 只在 s2
+                    x = 280;
+                    y = 150 + (index % 3 - 1) * 15;
+                }
+
+                color = inResult ? '#ef4444' : '#6b7280';
+
+                const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                text.setAttribute('x', x);
+                text.setAttribute('y', y);
+                text.setAttribute('text-anchor', 'middle');
+                text.setAttribute('fill', color);
+                text.setAttribute('font-weight', inResult ? 'bold' : 'normal');
+                text.setAttribute('font-size', '12');
+                text.textContent = element;
+
+                if (inResult) {
+                    text.classList.add('highlight');
+                }
+
+                elementsGroup.appendChild(text);
+                index++;
+            }
+        }
+
+        // 清除結果
+        function clearResult() {
+            document.getElementById('resultSection').classList.add('hidden');
+            document.getElementById('visualSection').classList.add('hidden');
+        }
+
+        // 初始化顯示
+        updateSetDisplays();
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9881fe3f60148098',t:'MTc1OTM4NDk3MC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
