@@ -33,7 +33,10 @@
 詳見[python-set.html](python-set.html)
 
 ### XSS 安全演示
-詳見[xss-security-demo.tsx](xss-security-demo.tsx)
+詳見[xss-security-demo.html](xss-security-demo.html)
+
+### Git 互動練習
+詳見[git-practice.html](git-practice.html)
 
 ## 相關文件
 - [Linux基本指令教學](Linus基本指令.md)
@@ -43,7 +46,8 @@
 - [資訊安全課程](Information_Security_Course.md)
 - [SQL 教學](SQL_Tutorial.md)
 - [Python Set 互動教學](python-set.html)
-- [XSS 安全演示](xss-security-demo.tsx)
+- [XSS 安全演示](xss-security-demo.html)
+- [Git 互動練習](git-practice.html)
 
 ## 在VS Code中的使用
 1. 打開VS Code並安裝Python擴展
