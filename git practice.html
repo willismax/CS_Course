@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Git 指令練習模擬器</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap');
+        .terminal-font { font-family: 'JetBrains Mono', monospace; }
+        .typing-animation {
+            border-right: 2px solid #10b981;
+            animation: blink 1s infinite;
+        }
+        @keyframes blink {
+            0%, 50% { border-color: #10b981; }
+            51%, 100% { border-color: transparent; }
+        }
+        .slide-in {
+            animation: slideIn 0.3s ease-out;
+        }
+        @keyframes slideIn {
+            from { transform: translateY(-10px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 min-h-screen text-white">
+    <div class="container mx-auto px-4 py-6">
+        <!-- Header -->
+        <header class="text-center mb-8">
+            <h1 class="text-4xl font-bold mb-2 bg-gradient-to-r from-green-400 to-blue-500 bg-clip-text text-transparent">
+                🚀 Git 指令練習模擬器
+            </h1>
+            <p class="text-gray-300">循序漸進學習 Git，在安全的環境中練習指令操作</p>
+        </header>
+
+        <div class="grid lg:grid-cols-3 gap-6">
+            <!-- 教學內容區 -->
+            <div class="lg:col-span-1 bg-gray-800 rounded-xl p-6 shadow-2xl">
+                <h2 class="text-xl font-bold mb-4 flex items-center">
+                    📚 教學內容
+                </h2>
+                
+                <!-- 關卡選擇 -->
+                <div class="mb-6">
+                    <div class="grid grid-cols-1 gap-2">
+                        <button onclick="loadLesson(1)" class="lesson-btn bg-green-600 hover:bg-green-700 px-4 py-3 rounded-lg text-left transition-all duration-200 transform hover:scale-105">
+                            <div class="font-semibold">第1關：Git 基礎</div>
+                            <div class="text-sm text-green-200">初始化倉庫、基本配置</div>
+                        </button>
+                        <button onclick="loadLesson(2)" class="lesson-btn bg-blue-600 hover:bg-blue-700 px-4 py-3 rounded-lg text-left transition-all duration-200 transform hover:scale-105">
+                            <div class="font-semibold">第2關：檔案操作</div>
+                            <div class="text-sm text-blue-200">add、commit、status</div>
+                        </button>
+                        <button onclick="loadLesson(3)" class="lesson-btn bg-purple-600 hover:bg-purple-700 px-4 py-3 rounded-lg text-left transition-all duration-200 transform hover:scale-105">
+                            <div class="font-semibold">第3關：分支管理</div>
+                            <div class="text-sm text-purple-200">branch、checkout、merge</div>
+                        </button>
+                        <button onclick="loadLesson(4)" class="lesson-btn bg-orange-600 hover:bg-orange-700 px-4 py-3 rounded-lg text-left transition-all duration-200 transform hover:scale-105">
+                            <div class="font-semibold">第4關：遠端操作</div>
+                            <div class="text-sm text-orange-200">remote、push、pull</div>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 當前教學內容 -->
+                <div id="lesson-content" class="bg-gray-700 rounded-lg p-4 mb-4">
+                    <h3 class="font-bold text-green-400 mb-2">歡迎來到 Git 練習！</h3>
+                    <p class="text-sm text-gray-300 mb-3">選擇上方的關卡開始學習。每個關卡都有詳細的說明和練習任務。</p>
+                    <div class="text-xs text-yellow-300">💡 提示：按照順序完成關卡，循序漸進掌握 Git 技能！</div>
+                </div>
+
+                <!-- 任務清單 -->
+                <div id="task-list" class="bg-gray-700 rounded-lg p-4">
+                    <h4 class="font-semibold mb-2 text-blue-400">📋 任務清單</h4>
+                    <div id="tasks" class="space-y-2">
+                        <div class="text-sm text-gray-400">選擇關卡後會顯示任務</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 模擬終端機區 -->
+            <div class="lg:col-span-2 bg-black rounded-xl p-6 shadow-2xl">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-xl font-bold flex items-center">
+                        💻 Git 模擬終端機
+                    </h2>
+                    <button onclick="clearTerminal()" class="bg-red-600 hover:bg-red-700 px-3 py-1 rounded text-sm transition-colors">
+                        清除
+                    </button>
+                </div>
+
+                <!-- 終端機輸出 -->
+                <div id="terminal-output" class="terminal-font bg-gray-900 rounded-lg p-4 h-80 overflow-y-auto mb-4 text-sm">
+                    <div class="text-green-400">Git 練習模擬器 v1.0</div>
+                    <div class="text-gray-400">輸入 'help' 查看可用指令</div>
+                    <div class="text-gray-400">輸入 'tutorial' 開始教學</div>
+                    <div class="mt-2"></div>
+                </div>
+
+                <!-- 指令輸入 -->
+                <div class="flex items-center bg-gray-900 rounded-lg p-3">
+                    <span class="text-green-400 terminal-font mr-2">git-practice:~$</span>
+                    <input 
+                        type="text" 
+                        id="command-input" 
+                        class="flex-1 bg-transparent text-white terminal-font outline-none"
+                        placeholder="輸入 Git 指令..."
+                        onkeypress="handleCommand(event)"
+                        autocomplete="off"
+                    >
+                </div>
+
+                <!-- 快速指令按鈕 -->
+                <div class="mt-4">
+                    <div class="text-sm text-gray-400 mb-2">快速指令：</div>
+                    <div class="flex flex-wrap gap-2">
+                        <button onclick="insertCommand('git status')" class="bg-gray-700 hover:bg-gray-600 px-3 py-1 rounded text-xs terminal-font transition-colors">git status</button>
+                        <button onclick="insertCommand('git add .')" class="bg-gray-700 hover:bg-gray-600 px-3 py-1 rounded text-xs terminal-font transition-colors">git add .</button>
+                        <button onclick="insertCommand('git commit -m \"Initial commit\"')" class="bg-gray-700 hover:bg-gray-600 px-3 py-1 rounded text-xs terminal-font transition-colors">git commit</button>
+                        <button onclick="insertCommand('git log')" class="bg-gray-700 hover:bg-gray-600 px-3 py-1 rounded text-xs terminal-font transition-colors">git log</button>
+                        <button onclick="insertCommand('git branch')" class="bg-gray-700 hover:bg-gray-600 px-3 py-1 rounded text-xs terminal-font transition-colors">git branch</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 進度顯示 -->
+        <div class="mt-6 bg-gray-800 rounded-xl p-4">
+            <div class="flex items-center justify-between mb-2">
+                <span class="font-semibold">學習進度</span>
+                <span id="progress-text" class="text-sm text-gray-400">0/4 關卡完成</span>
+            </div>
+            <div class="w-full bg-gray-700 rounded-full h-2">
+                <div id="progress-bar" class="bg-gradient-to-r from-green-500 to-blue-500 h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 遊戲狀態
+        let gameState = {
+            currentLesson: 0,
+            completedLessons: [],
+            repository: {
+                initialized: false,
+                files: {},
+                staged: {},
+                commits: [],
+                branches: ['main'],
+                currentBranch: 'main',
+                remotes: {}
+            },
+            tasks: [],
+            commandHistory: [],
+            historyIndex: -1
+        };
+
+        // 課程內容
+        const lessons = {
+            1: {
+                title: "Git 基礎設定",
+                content: `
+                    <h3 class="font-bold text-green-400 mb-2">第1關：Git 基礎設定</h3>
+                    <p class="text-sm text-gray-300 mb-3">學習如何初始化 Git 倉庫和進行基本配置。</p>
+                    <div class="text-xs space-y-1 mb-3">
+                        <div><span class="text-yellow-400">git init</span> - 初始化新的 Git 倉庫</div>
+                        <div><span class="text-yellow-400">git config --global user.name</span> - 設定全域使用者名稱</div>
+                        <div><span class="text-yellow-400">git config --global user.email</span> - 設定全域使用者信箱</div>
+                        <div><span class="text-yellow-400">git status</span> - 查看倉庫狀態</div>
+                    </div>
+                    <div class="text-xs text-blue-300">💡 Git 是版本控制系統，幫助你追蹤檔案變更！</div>
+                `,
+                tasks: [
+                    { id: 1, text: "使用 git init 初始化倉庫", completed: false },
+                    { id: 2, text: "設定使用者名稱 (git config --global user.name \"Your Name\")", completed: false },
+                    { id: 3, text: "設定使用者信箱 (git config --global user.email \"your@email.com\")", completed: false },
+                    { id: 4, text: "查看倉庫狀態 (git status)", completed: false }
+                ]
+            },
+            2: {
+                title: "檔案操作",
+                content: `
+                    <h3 class="font-bold text-blue-400 mb-2">第2關：檔案操作</h3>
+                    <p class="text-sm text-gray-300 mb-3">學習如何添加檔案到暫存區並提交變更。</p>
+                    <div class="text-xs space-y-1 mb-3">
+                        <div><span class="text-yellow-400">git add</span> - 將檔案加入暫存區</div>
+                        <div><span class="text-yellow-400">git commit</span> - 提交變更</div>
+                        <div><span class="text-yellow-400">git log</span> - 查看提交歷史</div>
+                    </div>
+                    <div class="text-xs text-blue-300">💡 暫存區是提交前的準備區域！</div>
+                `,
+                tasks: [
+                    { id: 1, text: "創建檔案 (touch README.md)", completed: false },
+                    { id: 2, text: "將檔案加入暫存區 (git add README.md 或 git add .)", completed: false },
+                    { id: 3, text: "提交變更 (git commit -m \"commit message\")", completed: false },
+                    { id: 4, text: "查看提交歷史 (git log)", completed: false }
+                ]
+            },
+            3: {
+                title: "分支管理",
+                content: `
+                    <h3 class="font-bold text-purple-400 mb-2">第3關：分支管理</h3>
+                    <p class="text-sm text-gray-300 mb-3">學習如何創建和管理分支，進行並行開發。</p>
+                    <div class="text-xs space-y-1 mb-3">
+                        <div><span class="text-yellow-400">git branch</span> - 查看或創建分支</div>
+                        <div><span class="text-yellow-400">git checkout</span> - 切換分支</div>
+                        <div><span class="text-yellow-400">git merge</span> - 合併分支</div>
+                    </div>
+                    <div class="text-xs text-blue-300">💡 分支讓你可以同時進行多個功能開發！</div>
+                `,
+                tasks: [
+                    { id: 1, text: "查看現有分支 (git branch)", completed: false },
+                    { id: 2, text: "創建新分支 (git branch feature)", completed: false },
+                    { id: 3, text: "切換到新分支 (git checkout feature)", completed: false },
+                    { id: 4, text: "切回主分支並合併 (git checkout main, git merge feature)", completed: false }
+                ]
+            },
+            4: {
+                title: "遠端操作",
+                content: `
+                    <h3 class="font-bold text-orange-400 mb-2">第4關：遠端操作</h3>
+                    <p class="text-sm text-gray-300 mb-3">學習如何與遠端倉庫互動，進行協作開發。</p>
+                    <div class="text-xs space-y-1 mb-3">
+                        <div><span class="text-yellow-400">git remote</span> - 管理遠端倉庫</div>
+                        <div><span class="text-yellow-400">git push</span> - 推送到遠端</div>
+                        <div><span class="text-yellow-400">git pull</span> - 從遠端拉取</div>
+                    </div>
+                    <div class="text-xs text-blue-300">💡 遠端倉庫讓團隊可以協作開發！</div>
+                `,
+                tasks: [
+                    { id: 1, text: "添加遠端倉庫 (git remote add origin <url>)", completed: false },
+                    { id: 2, text: "查看遠端倉庫 (git remote -v)", completed: false },
+                    { id: 3, text: "推送到遠端 (git push origin main)", completed: false },
+                    { id: 4, text: "從遠端拉取 (git pull origin main)", completed: false }
+                ]
+            }
+        };
+
+        // 載入課程
+        function loadLesson(lessonNumber) {
+            gameState.currentLesson = lessonNumber;
+            const lesson = lessons[lessonNumber];
+            
+            document.getElementById('lesson-content').innerHTML = lesson.content;
+            gameState.tasks = [...lesson.tasks];
+            updateTaskList();
+            
+            addToTerminal(`\n📚 載入第${lessonNumber}關：${lesson.title}`, 'text-blue-400');
+            addToTerminal('開始完成任務清單中的項目！', 'text-gray-400');
+        }
+
+        // 更新任務清單
+        function updateTaskList() {
+            const tasksContainer = document.getElementById('tasks');
+            tasksContainer.innerHTML = '';
+            
+            gameState.tasks.forEach(task => {
+                const taskElement = document.createElement('div');
+                taskElement.className = `flex items-center text-sm ${task.completed ? 'text-green-400' : 'text-gray-300'}`;
+                taskElement.innerHTML = `
+                    <span class="mr-2">${task.completed ? '✅' : '⭕'}</span>
+                    ${task.text}
+                `;
+                tasksContainer.appendChild(taskElement);
+            });
+        }
+
+        // 處理指令輸入
+        function handleCommand(event) {
+            const input = event.target;
+            
+            if (event.key === 'Enter') {
+                const command = input.value.trim();
+                
+                if (command) {
+                    // 添加到歷史記錄
+                    gameState.commandHistory.push(command);
+                    // 限制歷史記錄數量
+                    if (gameState.commandHistory.length > 50) {
+                        gameState.commandHistory.shift();
+                    }
+                    // 重置歷史索引
+                    gameState.historyIndex = -1;
+                    
+                    executeCommand(command);
+                    input.value = '';
+                }
+            } else if (event.key === 'ArrowUp') {
+                event.preventDefault();
+                navigateHistory('up', input);
+            } else if (event.key === 'ArrowDown') {
+                event.preventDefault();
+                navigateHistory('down', input);
+            }
+        }
+        
+        // 瀏覽指令歷史
+        function navigateHistory(direction, input) {
+            if (gameState.commandHistory.length === 0) return;
+            
+            if (direction === 'up') {
+                if (gameState.historyIndex === -1) {
+                    gameState.historyIndex = gameState.commandHistory.length - 1;
+                } else if (gameState.historyIndex > 0) {
+                    gameState.historyIndex--;
+                }
+            } else if (direction === 'down') {
+                if (gameState.historyIndex === -1) {
+                    return;
+                } else if (gameState.historyIndex < gameState.commandHistory.length - 1) {
+                    gameState.historyIndex++;
+                } else {
+                    gameState.historyIndex = -1;
+                    input.value = '';
+                    return;
+                }
+            }
+            
+            if (gameState.historyIndex >= 0) {
+                input.value = gameState.commandHistory[gameState.historyIndex];
+                // 將游標移到最後
+                setTimeout(() => {
+                    input.setSelectionRange(input.value.length, input.value.length);
+                }, 0);
+            }
+        }
+
+        // 執行指令
+        function executeCommand(command) {
+            addToTerminal(`git-practice:~$ ${command}`, 'text-white');
+            
+            const parts = command.split(' ');
+            const mainCommand = parts[0];
+            
+            switch (mainCommand) {
+                case 'help':
+                    showHelp();
+                    break;
+                case 'tutorial':
+                    showTutorial();
+                    break;
+                case 'git':
+                    handleGitCommand(parts.slice(1));
+                    break;
+                case 'touch':
+                    handleTouchCommand(parts.slice(1));
+                    break;
+                case 'ls':
+                    handleLsCommand();
+                    break;
+                case 'clear':
+                    clearTerminal();
+                    break;
+                case 'history':
+                    showHistory();
+                    break;
+                default:
+                    addToTerminal(`指令不存在: ${command}`, 'text-red-400');
+                    addToTerminal('輸入 "help" 查看可用指令', 'text-gray-400');
+            }
+            
+            checkTaskCompletion(command);
+        }
+
+        // 處理 Git 指令
+        function handleGitCommand(args) {
+            if (args.length === 0) {
+                addToTerminal('usage: git <command> [<args>]', 'text-yellow-400');
+                return;
+            }
+            
+            const subCommand = args[0];
+            
+            switch (subCommand) {
+                case 'init':
+                    handleGitInit();
+                    break;
+                case 'config':
+                    handleGitConfig(args.slice(1));
+                    break;
+                case 'status':
+                    handleGitStatus();
+                    break;
+                case 'add':
+                    handleGitAdd(args.slice(1));
+                    break;
+                case 'commit':
+                    handleGitCommit(args.slice(1));
+                    break;
+                case 'log':
+                    handleGitLog();
+                    break;
+                case 'branch':
+                    handleGitBranch(args.slice(1));
+                    break;
+                case 'checkout':
+                    handleGitCheckout(args.slice(1));
+                    break;
+                case 'merge':
+                    handleGitMerge(args.slice(1));
+                    break;
+                case 'remote':
+                    handleGitRemote(args.slice(1));
+                    break;
+                case 'push':
+                    handleGitPush(args.slice(1));
+                    break;
+                case 'pull':
+                    handleGitPull(args.slice(1));
+                    break;
+                default:
+                    addToTerminal(`git: '${subCommand}' is not a git command.`, 'text-red-400');
+            }
+        }
+
+        // Git 指令實作
+        function handleGitInit() {
+            if (gameState.repository.initialized) {
+                addToTerminal('Reinitialized existing Git repository', 'text-yellow-400');
+            } else {
+                gameState.repository.initialized = true;
+                addToTerminal('Initialized empty Git repository in /git-practice/.git/', 'text-green-400');
+            }
+        }
+
+        function handleGitConfig(args) {
+            if (args.length === 0) {
+                addToTerminal('usage: git config [--global] <key> <value>', 'text-yellow-400');
+                addToTerminal('   or: git config [--global] --list', 'text-yellow-400');
+                return;
+            }
+            
+            let isGlobal = false;
+            let configArgs = [...args];
+            
+            if (args[0] === '--global') {
+                isGlobal = true;
+                configArgs = args.slice(1);
+            }
+            
+            if (configArgs[0] === '--list') {
+                addToTerminal('user.name=Your Name', 'text-gray-300');
+                addToTerminal('user.email=your@email.com', 'text-gray-300');
+                addToTerminal('core.autocrlf=true', 'text-gray-300');
+                return;
+            }
+            
+            if (configArgs.length < 2) {
+                addToTerminal('usage: git config [--global] <key> <value>', 'text-yellow-400');
+                return;
+            }
+            
+            const key = configArgs[0];
+            const value = configArgs.slice(1).join(' ').replace(/['"]/g, '');
+            const scope = isGlobal ? '全域' : '本地';
+            
+            if (key === 'user.name') {
+                addToTerminal(`設定${scope}使用者名稱: ${value}`, 'text-green-400');
+            } else if (key === 'user.email') {
+                addToTerminal(`設定${scope}使用者信箱: ${value}`, 'text-green-400');
+            } else {
+                addToTerminal(`設定${scope} ${key}: ${value}`, 'text-green-400');
+            }
+        }
+
+        function handleGitStatus() {
+            if (!gameState.repository.initialized) {
+                addToTerminal('fatal: not a git repository', 'text-red-400');
+                return;
+            }
+            
+            addToTerminal(`On branch ${gameState.repository.currentBranch}`, 'text-white');
+            
+            const stagedFiles = Object.keys(gameState.repository.staged);
+            const unstagedFiles = Object.keys(gameState.repository.files).filter(
+                file => !gameState.repository.staged[file]
+            );
+            
+            if (stagedFiles.length > 0) {
+                addToTerminal('\nChanges to be committed:', 'text-green-400');
+                stagedFiles.forEach(file => {
+                    addToTerminal(`  new file:   ${file}`, 'text-green-400');
+                });
+            }
+            
+            if (unstagedFiles.length > 0) {
+                addToTerminal('\nUntracked files:', 'text-red-400');
+                unstagedFiles.forEach(file => {
+                    addToTerminal(`  ${file}`, 'text-red-400');
+                });
+            }
+            
+            if (stagedFiles.length === 0 && unstagedFiles.length === 0) {
+                addToTerminal('nothing to commit, working tree clean', 'text-gray-400');
+            }
+        }
+
+        function handleGitAdd(args) {
+            if (!gameState.repository.initialized) {
+                addToTerminal('fatal: not a git repository', 'text-red-400');
+                return;
+            }
+            
+            if (args.length === 0) {
+                addToTerminal('usage: git add <file>', 'text-yellow-400');
+                return;
+            }
+            
+            const target = args[0];
+            
+            if (target === '.') {
+                Object.keys(gameState.repository.files).forEach(file => {
+                    gameState.repository.staged[file] = true;
+                });
+                addToTerminal('已將所有檔案加入暫存區', 'text-green-400');
+            } else if (gameState.repository.files[target]) {
+                gameState.repository.staged[target] = true;
+                addToTerminal(`已將 ${target} 加入暫存區`, 'text-green-400');
+            } else {
+                addToTerminal(`pathspec '${target}' did not match any files`, 'text-red-400');
+            }
+        }
+
+        function handleGitCommit(args) {
+            if (!gameState.repository.initialized) {
+                addToTerminal('fatal: not a git repository', 'text-red-400');
+                return;
+            }
+            
+            const stagedFiles = Object.keys(gameState.repository.staged);
+            if (stagedFiles.length === 0) {
+                addToTerminal('nothing to commit', 'text-yellow-400');
+                return;
+            }
+            
+            let message = 'Initial commit';
+            if (args.includes('-m') && args.length > 2) {
+                const messageIndex = args.indexOf('-m') + 1;
+                message = args.slice(messageIndex).join(' ').replace(/['"]/g, '');
+            }
+            
+            const commitId = Math.random().toString(36).substr(2, 7);
+            gameState.repository.commits.push({
+                id: commitId,
+                message: message,
+                files: [...stagedFiles],
+                branch: gameState.repository.currentBranch
+            });
+            
+            gameState.repository.staged = {};
+            addToTerminal(`[${gameState.repository.currentBranch} ${commitId}] ${message}`, 'text-green-400');
+            addToTerminal(`${stagedFiles.length} file(s) changed`, 'text-gray-400');
+        }
+
+        function handleGitLog() {
+            if (!gameState.repository.initialized) {
+                addToTerminal('fatal: not a git repository', 'text-red-400');
+                return;
+            }
+            
+            if (gameState.repository.commits.length === 0) {
+                addToTerminal('fatal: your current branch does not have any commits yet', 'text-red-400');
+                return;
+            }
+            
+            gameState.repository.commits.slice().reverse().forEach(commit => {
+                addToTerminal(`commit ${commit.id}`, 'text-yellow-400');
+                addToTerminal(`    ${commit.message}`, 'text-white');
+                addToTerminal('', 'text-white');
+            });
+        }
+
+        function handleGitBranch(args) {
+            if (!gameState.repository.initialized) {
+                addToTerminal('fatal: not a git repository', 'text-red-400');
+                return;
+            }
+            
+            if (args.length === 0) {
+                gameState.repository.branches.forEach(branch => {
+                    const prefix = branch === gameState.repository.currentBranch ? '* ' : '  ';
+                    const color = branch === gameState.repository.currentBranch ? 'text-green-400' : 'text-white';
+                    addToTerminal(`${prefix}${branch}`, color);
+                });
+            } else {
+                const newBranch = args[0];
+                if (!gameState.repository.branches.includes(newBranch)) {
+                    gameState.repository.branches.push(newBranch);
+                    addToTerminal(`已創建分支 '${newBranch}'`, 'text-green-400');
+                } else {
+                    addToTerminal(`fatal: A branch named '${newBranch}' already exists.`, 'text-red-400');
+                }
+            }
+        }
+
+        function handleGitCheckout(args) {
+            if (!gameState.repository.initialized) {
+                addToTerminal('fatal: not a git repository', 'text-red-400');
+                return;
+            }
+            
+            if (args.length === 0) {
+                addToTerminal('usage: git checkout <branch>', 'text-yellow-400');
+                return;
+            }
+            
+            const targetBranch = args[0];
+            if (gameState.repository.branches.includes(targetBranch)) {
+                gameState.repository.currentBranch = targetBranch;
+                addToTerminal(`Switched to branch '${targetBranch}'`, 'text-green-400');
+            } else {
+                addToTerminal(`error: pathspec '${targetBranch}' did not match any file(s) known to git`, 'text-red-400');
+            }
+        }
+
+        function handleGitMerge(args) {
+            if (!gameState.repository.initialized) {
+                addToTerminal('fatal: not a git repository', 'text-red-400');
+                return;
+            }
+            
+            if (args.length === 0) {
+                addToTerminal('usage: git merge <branch>', 'text-yellow-400');
+                return;
+            }
+            
+            const sourceBranch = args[0];
+            
+            if (sourceBranch === gameState.repository.currentBranch) {
+                addToTerminal('Already up to date.', 'text-gray-400');
+                return;
+            }
+            
+            if (!gameState.repository.branches.includes(sourceBranch)) {
+                addToTerminal(`merge: ${sourceBranch} - not something we can merge`, 'text-red-400');
+                return;
+            }
+            
+            if (gameState.repository.commits.length === 0) {
+                addToTerminal('fatal: refusing to merge unrelated histories', 'text-red-400');
+                return;
+            }
+            
+            // 模擬快進合併或三方合併
+            const hasCommitsInSource = gameState.repository.commits.some(c => c.branch === sourceBranch);
+            
+            if (hasCommitsInSource) {
+                addToTerminal(`Merge made by the 'recursive' strategy.`, 'text-green-400');
+                
+                // 創建合併提交
+                const commitId = Math.random().toString(36).substr(2, 7);
+                gameState.repository.commits.push({
+                    id: commitId,
+                    message: `Merge branch '${sourceBranch}'`,
+                    files: [],
+                    branch: gameState.repository.currentBranch
+                });
+                
+                addToTerminal(`已將 '${sourceBranch}' 合併到 '${gameState.repository.currentBranch}'`, 'text-green-400');
+            } else {
+                addToTerminal('Already up to date.', 'text-gray-400');
+            }
+        }
+
+        function handleGitRemote(args) {
+            if (args.length === 0) {
+                Object.keys(gameState.repository.remotes).forEach(remote => {
+                    addToTerminal(remote, 'text-white');
+                });
+                return;
+            }
+            
+            if (args[0] === 'add' && args.length >= 3) {
+                const remoteName = args[1];
+                const remoteUrl = args[2];
+                gameState.repository.remotes[remoteName] = remoteUrl;
+                addToTerminal(`已添加遠端倉庫 '${remoteName}': ${remoteUrl}`, 'text-green-400');
+            } else if (args[0] === '-v') {
+                Object.entries(gameState.repository.remotes).forEach(([name, url]) => {
+                    addToTerminal(`${name}\t${url} (fetch)`, 'text-white');
+                    addToTerminal(`${name}\t${url} (push)`, 'text-white');
+                });
+            }
+        }
+
+        function handleGitPush(args) {
+            if (Object.keys(gameState.repository.remotes).length === 0) {
+                addToTerminal('fatal: No configured push destination.', 'text-red-400');
+                return;
+            }
+            
+            if (gameState.repository.commits.length === 0) {
+                addToTerminal('error: src refspec main does not match any', 'text-red-400');
+                return;
+            }
+            
+            addToTerminal('Enumerating objects: 3, done.', 'text-white');
+            addToTerminal('Counting objects: 100% (3/3), done.', 'text-white');
+            addToTerminal('Writing objects: 100% (3/3), 242 bytes | 242.00 KiB/s, done.', 'text-white');
+            addToTerminal('Total 3 (delta 0), reused 0 (delta 0)', 'text-white');
+            addToTerminal(`To ${Object.values(gameState.repository.remotes)[0]}`, 'text-green-400');
+            addToTerminal(` * [new branch]      ${gameState.repository.currentBranch} -> ${gameState.repository.currentBranch}`, 'text-green-400');
+        }
+
+        function handleGitPull(args) {
+            if (Object.keys(gameState.repository.remotes).length === 0) {
+                addToTerminal('fatal: No remote repository specified.', 'text-red-400');
+                return;
+            }
+            
+            addToTerminal('Already up to date.', 'text-gray-400');
+        }
+
+        // 其他指令
+        function handleTouchCommand(args) {
+            if (args.length === 0) {
+                addToTerminal('usage: touch <filename>', 'text-yellow-400');
+                return;
+            }
+            
+            const filename = args[0];
+            gameState.repository.files[filename] = '';
+            addToTerminal(`已創建檔案: ${filename}`, 'text-green-400');
+        }
+
+        function handleLsCommand() {
+            const files = Object.keys(gameState.repository.files);
+            if (files.length === 0) {
+                addToTerminal('目錄為空', 'text-gray-400');
+            } else {
+                files.forEach(file => {
+                    addToTerminal(file, 'text-blue-400');
+                });
+            }
+        }
+
+        // 檢查任務完成
+        function checkTaskCompletion(command) {
+            if (gameState.currentLesson === 0) return;
+            
+            const taskMappings = {
+                1: {
+                    'git init': 1,
+                    'git config --global user.name': 2,
+                    'git config --global user.email': 3,
+                    'git status': 4
+                },
+                2: {
+                    'touch': 1,
+                    'git add': 2,
+                    'git commit': 3,
+                    'git log': 4
+                },
+                3: {
+                    'git branch': [1, 2],
+                    'git checkout': 3,
+                    'git merge': 4
+                },
+                4: {
+                    'git remote add': 1,
+                    'git remote -v': 2,
+                    'git push': 3,
+                    'git pull': 4
+                }
+            };
+            
+            const currentMappings = taskMappings[gameState.currentLesson];
+            if (!currentMappings) return;
+            
+            Object.entries(currentMappings).forEach(([cmd, taskIds]) => {
+                if (command.includes(cmd)) {
+                    const ids = Array.isArray(taskIds) ? taskIds : [taskIds];
+                    ids.forEach(taskId => {
+                        const task = gameState.tasks.find(t => t.id === taskId);
+                        if (task && !task.completed) {
+                            task.completed = true;
+                            addToTerminal(`✅ 任務完成: ${task.text}`, 'text-green-400');
+                        }
+                    });
+                }
+            });
+            
+            updateTaskList();
+            checkLessonCompletion();
+        }
+
+        // 檢查關卡完成
+        function checkLessonCompletion() {
+            const allCompleted = gameState.tasks.every(task => task.completed);
+            
+            if (allCompleted && !gameState.completedLessons.includes(gameState.currentLesson)) {
+                gameState.completedLessons.push(gameState.currentLesson);
+                addToTerminal(`🎉 恭喜！第${gameState.currentLesson}關完成！`, 'text-yellow-400');
+                
+                if (gameState.currentLesson < 4) {
+                    addToTerminal(`可以繼續挑戰第${gameState.currentLesson + 1}關！`, 'text-blue-400');
+                } else {
+                    addToTerminal('🏆 所有關卡完成！你已經掌握了 Git 的基本操作！', 'text-yellow-400');
+                }
+                
+                updateProgress();
+            }
+        }
+
+        // 更新進度
+        function updateProgress() {
+            const progress = (gameState.completedLessons.length / 4) * 100;
+            document.getElementById('progress-bar').style.width = `${progress}%`;
+            document.getElementById('progress-text').textContent = `${gameState.completedLessons.length}/4 關卡完成`;
+        }
+
+        // 輔助功能
+        function showHelp() {
+            addToTerminal('可用指令:', 'text-yellow-400');
+            addToTerminal('  help          - 顯示此說明', 'text-gray-300');
+            addToTerminal('  tutorial      - 開始教學', 'text-gray-300');
+            addToTerminal('  clear         - 清除終端機', 'text-gray-300');
+            addToTerminal('  history       - 顯示指令歷史', 'text-gray-300');
+            addToTerminal('  ls            - 列出檔案', 'text-gray-300');
+            addToTerminal('  touch <file>  - 創建檔案', 'text-gray-300');
+            addToTerminal('', 'text-white');
+            addToTerminal('Git 指令:', 'text-yellow-400');
+            addToTerminal('  git init                     - 初始化倉庫', 'text-gray-300');
+            addToTerminal('  git config --global user.name - 設定使用者名稱', 'text-gray-300');
+            addToTerminal('  git status                   - 查看狀態', 'text-gray-300');
+            addToTerminal('  git add <file>               - 加入暫存區', 'text-gray-300');
+            addToTerminal('  git commit -m "message"      - 提交變更', 'text-gray-300');
+            addToTerminal('  git log                      - 查看歷史', 'text-gray-300');
+            addToTerminal('  git branch <name>            - 創建分支', 'text-gray-300');
+            addToTerminal('  git checkout <branch>        - 切換分支', 'text-gray-300');
+            addToTerminal('', 'text-white');
+            addToTerminal('快捷鍵:', 'text-yellow-400');
+            addToTerminal('  ↑ / ↓         - 瀏覽指令歷史', 'text-gray-300');
+        }
+
+        function showTutorial() {
+            addToTerminal('🎯 Git 練習教學', 'text-yellow-400');
+            addToTerminal('1. 選擇左側的關卡開始學習', 'text-gray-300');
+            addToTerminal('2. 閱讀教學內容和任務清單', 'text-gray-300');
+            addToTerminal('3. 在終端機中輸入指令練習', 'text-gray-300');
+            addToTerminal('4. 完成所有任務解鎖下一關', 'text-gray-300');
+            addToTerminal('', 'text-white');
+            addToTerminal('💡 提示：可以使用快速指令按鈕！', 'text-blue-400');
+            addToTerminal('💡 提示：使用 ↑↓ 方向鍵瀏覽指令歷史！', 'text-blue-400');
+        }
+        
+        function showHistory() {
+            if (gameState.commandHistory.length === 0) {
+                addToTerminal('沒有指令歷史記錄', 'text-gray-400');
+                return;
+            }
+            
+            addToTerminal('指令歷史記錄:', 'text-yellow-400');
+            gameState.commandHistory.forEach((cmd, index) => {
+                addToTerminal(`  ${index + 1}  ${cmd}`, 'text-gray-300');
+            });
+        }
+
+        function addToTerminal(text, className = 'text-white') {
+            const output = document.getElementById('terminal-output');
+            const line = document.createElement('div');
+            line.className = className + ' slide-in';
+            line.textContent = text;
+            output.appendChild(line);
+            output.scrollTop = output.scrollHeight;
+        }
+
+        function clearTerminal() {
+            document.getElementById('terminal-output').innerHTML = `
+                <div class="text-green-400">Git 練習模擬器 v1.0</div>
+                <div class="text-gray-400">輸入 'help' 查看可用指令</div>
+                <div class="text-gray-400">輸入 'tutorial' 開始教學</div>
+                <div class="mt-2"></div>
+            `;
+        }
+
+        function insertCommand(command) {
+            document.getElementById('command-input').value = command;
+            document.getElementById('command-input').focus();
+        }
+
+        // 初始化
+        document.getElementById('command-input').focus();
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'988288e1d31b8098',t:'MTc1OTM5MDY0OS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
