@@ -29,6 +29,9 @@
 ### 資訊安全課程
 詳見[Information_Security_Course.md](Information_Security_Course.md)
 
+### Python Set 互動教學
+詳見[python-set.html](python-set.html)
+
 ### XSS 安全演示
 詳見[xss-security-demo.tsx](xss-security-demo.tsx)
 
@@ -39,6 +42,7 @@
 - [二子樹說明](Binary_Tree_Explanation.md)
 - [資訊安全課程](Information_Security_Course.md)
 - [SQL 教學](SQL_Tutorial.md)
+- [Python Set 互動教學](python-set.html)
 - [XSS 安全演示](xss-security-demo.tsx)
 
 ## 在VS Code中的使用
