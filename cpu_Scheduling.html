@@ -1,0 +1,1364 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CPU排班演算法教學示範</title>
+    <style>
+        body {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .algorithm-selector {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+        
+        .module-tabs {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e1e5e9;
+        }
+        
+        .module-tab {
+            padding: 12px 24px;
+            border: none;
+            background: transparent;
+            color: #666;
+            cursor: pointer;
+            font-weight: 600;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+        
+        .module-tab:hover {
+            color: #667eea;
+            background: #f8f9fa;
+        }
+        
+        .module-tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+            background: #f8f9fa;
+        }
+        
+        .module-content {
+            margin-top: 20px;
+        }
+        
+        .algorithm-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        
+        .algorithm-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            background: #667eea;
+            color: white;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+        
+        .algorithm-btn:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+        }
+        
+        .algorithm-btn.active {
+            background: #764ba2;
+            box-shadow: 0 4px 15px rgba(118, 75, 162, 0.4);
+        }
+        
+        .process-input {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+        
+        .input-row {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        
+        .input-group label {
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+        }
+        
+        .input-group input {
+            padding: 8px 12px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 14px;
+            width: 80px;
+        }
+        
+        .input-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .control-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background: #28a745;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #218838;
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #545b62;
+        }
+        
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #c82333;
+        }
+        
+        .simulation-area {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+        
+        .process-list {
+            margin-bottom: 20px;
+        }
+        
+        .process-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            margin: 5px 0;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .gantt-chart {
+            margin: 20px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+        
+        .gantt-timeline {
+            display: flex;
+            margin-bottom: 10px;
+            min-height: 40px;
+            border: 2px solid #dee2e6;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        
+        .gantt-block {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 12px;
+            border-right: 1px solid #fff;
+            transition: all 0.3s ease;
+        }
+        
+        .gantt-block:hover {
+            opacity: 0.8;
+            transform: scale(1.05);
+        }
+        
+        .time-labels {
+            display: flex;
+            margin-top: 5px;
+        }
+        
+        .time-label {
+            font-size: 12px;
+            text-align: center;
+            color: #666;
+        }
+        
+        .results {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+        
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .metric-card {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .metric-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .metric-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        
+        .algorithm-info {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        
+        .execution-demo {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            min-height: 200px;
+            border: 2px solid #dee2e6;
+        }
+        
+        .execution-log {
+            background: #2d3748;
+            color: #e2e8f0;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .demo-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .task-block {
+            display: inline-block;
+            padding: 8px 12px;
+            margin: 2px;
+            border-radius: 5px;
+            color: white;
+            font-weight: bold;
+            font-size: 12px;
+            animation: taskPulse 0.5s ease-in-out;
+        }
+        
+        .task-running {
+            animation: taskRunning 1s infinite alternate;
+        }
+        
+        .task-waiting {
+            opacity: 0.6;
+            animation: taskWaiting 2s infinite;
+        }
+        
+        .task-completed {
+            opacity: 0.8;
+            text-decoration: line-through;
+        }
+        
+        .cpu-core {
+            display: inline-block;
+            width: 80px;
+            height: 60px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 10px;
+            margin: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 12px;
+            position: relative;
+        }
+        
+        .cpu-core.active {
+            animation: cpuActive 1s infinite alternate;
+        }
+        
+        @keyframes taskPulse {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        @keyframes taskRunning {
+            0% { box-shadow: 0 0 5px rgba(255, 255, 255, 0.5); }
+            100% { box-shadow: 0 0 15px rgba(255, 255, 255, 0.8); }
+        }
+        
+        @keyframes taskWaiting {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 0.3; }
+        }
+        
+        @keyframes cpuActive {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.05); box-shadow: 0 0 10px rgba(255, 255, 255, 0.5); }
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        @media (max-width: 768px) {
+            .input-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .algorithm-buttons {
+                flex-direction: column;
+            }
+            
+            .algorithm-btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🖥️ CPU排班演算法教學</h1>
+            <p>互動式學習平台 - 視覺化理解各種CPU排程演算法</p>
+        </div>
+        
+        <div class="algorithm-selector">
+            <h3>選擇學習模組</h3>
+            <div class="module-tabs">
+                <button class="module-tab active" data-module="scheduling">排程演算法</button>
+                <button class="module-tab" data-module="sync-async">同步與異步</button>
+                <button class="module-tab" data-module="multitasking">多工處理</button>
+            </div>
+            
+            <div id="scheduling-module" class="module-content">
+                <div class="algorithm-buttons">
+                    <button class="algorithm-btn active" data-algorithm="fcfs">先到先服務 (FCFS)</button>
+                    <button class="algorithm-btn" data-algorithm="sjf">最短工作優先 (SJF)</button>
+                    <button class="algorithm-btn" data-algorithm="rr">輪轉法 (Round Robin)</button>
+                    <button class="algorithm-btn" data-algorithm="priority">優先權排程</button>
+                </div>
+            </div>
+            
+            <div id="sync-async-module" class="module-content hidden">
+                <div class="algorithm-buttons">
+                    <button class="algorithm-btn active" data-algorithm="sync">同步執行</button>
+                    <button class="algorithm-btn" data-algorithm="async">異步執行</button>
+                    <button class="algorithm-btn" data-algorithm="callback">回調函數</button>
+                    <button class="algorithm-btn" data-algorithm="promise">Promise模式</button>
+                </div>
+            </div>
+            
+            <div id="multitasking-module" class="module-content hidden">
+                <div class="algorithm-buttons">
+                    <button class="algorithm-btn active" data-algorithm="cooperative">協作式多工</button>
+                    <button class="algorithm-btn" data-algorithm="preemptive">搶占式多工</button>
+                    <button class="algorithm-btn" data-algorithm="threading">多執行緒</button>
+                    <button class="algorithm-btn" data-algorithm="parallel">平行處理</button>
+                </div>
+            </div>
+            
+            <div class="algorithm-info" id="algorithm-info">
+                <h4>先到先服務 (First Come First Served)</h4>
+                <p>最簡單的排程演算法，按照行程到達的順序執行。優點是公平且實作簡單，缺點是可能造成護航效應(Convoy Effect)。</p>
+            </div>
+        </div>
+        
+        <div class="process-input">
+            <h3>新增行程</h3>
+            <div class="input-row">
+                <div class="input-group">
+                    <label>行程名稱</label>
+                    <input type="text" id="processName" placeholder="P1" value="P1">
+                </div>
+                <div class="input-group">
+                    <label>到達時間</label>
+                    <input type="number" id="arrivalTime" placeholder="0" value="0" min="0">
+                </div>
+                <div class="input-group">
+                    <label>執行時間</label>
+                    <input type="number" id="burstTime" placeholder="5" value="5" min="1">
+                </div>
+                <div class="input-group" id="priorityGroup" style="display: none;">
+                    <label>優先權</label>
+                    <input type="number" id="priority" placeholder="1" value="1" min="1">
+                </div>
+                <div class="input-group" id="quantumGroup" style="display: none;">
+                    <label>時間量子</label>
+                    <input type="number" id="quantum" placeholder="2" value="2" min="1">
+                </div>
+            </div>
+            
+            <div class="control-buttons">
+                <button class="btn btn-primary" onclick="addProcess()">新增行程</button>
+                <button class="btn btn-secondary" onclick="loadSampleData()">載入範例資料</button>
+                <button class="btn btn-danger" onclick="clearProcesses()">清除全部</button>
+                <button class="btn btn-primary" onclick="runSimulation()">開始模擬</button>
+            </div>
+        </div>
+        
+        <div class="simulation-area">
+            <div id="scheduling-simulation">
+                <h3>行程列表</h3>
+                <div class="process-list" id="processList">
+                    <p style="color: #666; text-align: center;">尚未新增任何行程</p>
+                </div>
+                
+                <div id="ganttChart" class="gantt-chart hidden">
+                    <h4>甘特圖 (Gantt Chart)</h4>
+                    <div class="gantt-timeline" id="ganttTimeline"></div>
+                    <div class="time-labels" id="timeLabels"></div>
+                </div>
+            </div>
+            
+            <div id="sync-async-simulation" class="hidden">
+                <h3>同步與異步執行示範</h3>
+                <div class="demo-controls">
+                    <button class="btn btn-primary" onclick="runSyncAsyncDemo()">開始示範</button>
+                    <button class="btn btn-secondary" onclick="resetDemo()">重置</button>
+                </div>
+                <div id="execution-timeline" class="execution-demo"></div>
+                <div id="execution-log" class="execution-log"></div>
+            </div>
+            
+            <div id="multitasking-simulation" class="hidden">
+                <h3>多工處理示範</h3>
+                <div class="demo-controls">
+                    <button class="btn btn-primary" onclick="runMultitaskingDemo()">開始示範</button>
+                    <button class="btn btn-secondary" onclick="resetDemo()">重置</button>
+                    <div class="input-group" style="display: inline-block; margin-left: 15px;">
+                        <label>CPU核心數</label>
+                        <input type="number" id="cpuCores" value="4" min="1" max="8" style="width: 60px;">
+                    </div>
+                </div>
+                <div id="multitask-timeline" class="execution-demo"></div>
+                <div id="multitask-log" class="execution-log"></div>
+            </div>
+        </div>
+        
+        <div class="results" id="results" style="display: none;">
+            <h3>執行結果與效能指標</h3>
+            <div id="processResults"></div>
+            <div class="metrics" id="metrics"></div>
+        </div>
+    </div>
+
+    <script>
+        let processes = [];
+        let currentAlgorithm = 'fcfs';
+        let currentModule = 'scheduling';
+        let processCounter = 1;
+        
+        const algorithmInfo = {
+            // 排程演算法
+            fcfs: {
+                title: '先到先服務 (First Come First Served)',
+                description: '最簡單的排程演算法，按照行程到達的順序執行。優點是公平且實作簡單，缺點是可能造成護航效應(Convoy Effect)。'
+            },
+            sjf: {
+                title: '最短工作優先 (Shortest Job First)',
+                description: '選擇執行時間最短的行程優先執行。能最小化平均等待時間，但可能造成長行程飢餓問題。'
+            },
+            rr: {
+                title: '輪轉法 (Round Robin)',
+                description: '每個行程分配固定的時間量子，時間到就切換到下一個行程。適合互動式系統，能提供良好的回應時間。'
+            },
+            priority: {
+                title: '優先權排程 (Priority Scheduling)',
+                description: '根據行程的優先權決定執行順序，數字越小優先權越高。可能造成低優先權行程飢餓問題。'
+            },
+            // 同步與異步
+            sync: {
+                title: '同步執行 (Synchronous Execution)',
+                description: '程式按順序執行，每個任務必須等待前一個任務完成才能開始。執行順序可預測，但可能造成阻塞。'
+            },
+            async: {
+                title: '異步執行 (Asynchronous Execution)',
+                description: '任務可以並行執行，不需要等待其他任務完成。提高效率但增加複雜性，需要處理競爭條件。'
+            },
+            callback: {
+                title: '回調函數 (Callback Functions)',
+                description: '將函數作為參數傳遞，在特定事件發生時被調用。是實現異步程式設計的基本方式。'
+            },
+            promise: {
+                title: 'Promise模式',
+                description: '用於處理異步操作的物件，代表一個可能在未來完成的操作結果。避免回調地獄，提供更清晰的錯誤處理。'
+            },
+            // 多工處理
+            cooperative: {
+                title: '協作式多工 (Cooperative Multitasking)',
+                description: '任務主動讓出CPU控制權，依賴程式自身的合作。簡單但可能因為不合作的程式造成系統停頓。'
+            },
+            preemptive: {
+                title: '搶占式多工 (Preemptive Multitasking)',
+                description: '作業系統強制切換任務，不依賴程式合作。提供更好的系統穩定性和回應性。'
+            },
+            threading: {
+                title: '多執行緒 (Multi-threading)',
+                description: '在同一個程序中創建多個執行緒，共享記憶體空間。適合I/O密集型任務，但需要處理同步問題。'
+            },
+            parallel: {
+                title: '平行處理 (Parallel Processing)',
+                description: '同時在多個CPU核心上執行任務，真正的並行執行。適合CPU密集型任務，能充分利用多核心優勢。'
+            }
+        };
+        
+        const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD', '#98D8C8', '#F7DC6F'];
+        
+        // 模組切換
+        document.querySelectorAll('.module-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.module-tab').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                currentModule = this.dataset.module;
+                
+                // 隱藏所有模組內容
+                document.querySelectorAll('.module-content').forEach(content => {
+                    content.classList.add('hidden');
+                });
+                
+                // 顯示選中的模組
+                document.getElementById(currentModule + '-module').classList.remove('hidden');
+                
+                // 重置為該模組的第一個演算法
+                const firstBtn = document.querySelector(`#${currentModule}-module .algorithm-btn`);
+                if (firstBtn) {
+                    document.querySelectorAll('.algorithm-btn').forEach(b => b.classList.remove('active'));
+                    firstBtn.classList.add('active');
+                    currentAlgorithm = firstBtn.dataset.algorithm;
+                }
+                
+                updateAlgorithmInfo();
+                updateInputFields();
+                clearResults();
+                updateProcessInputVisibility();
+            });
+        });
+        
+        // 演算法選擇
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('algorithm-btn')) {
+                document.querySelectorAll('.algorithm-btn').forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+                currentAlgorithm = e.target.dataset.algorithm;
+                updateAlgorithmInfo();
+                updateInputFields();
+                clearResults();
+            }
+        });
+        
+        function updateAlgorithmInfo() {
+            const info = algorithmInfo[currentAlgorithm];
+            document.getElementById('algorithm-info').innerHTML = `
+                <h4>${info.title}</h4>
+                <p>${info.description}</p>
+            `;
+        }
+        
+        function updateInputFields() {
+            const priorityGroup = document.getElementById('priorityGroup');
+            const quantumGroup = document.getElementById('quantumGroup');
+            
+            priorityGroup.style.display = currentAlgorithm === 'priority' ? 'block' : 'none';
+            quantumGroup.style.display = currentAlgorithm === 'rr' ? 'block' : 'none';
+        }
+        
+        function updateProcessInputVisibility() {
+            const processInput = document.querySelector('.process-input');
+            const schedulingSimulation = document.getElementById('scheduling-simulation');
+            const syncAsyncSimulation = document.getElementById('sync-async-simulation');
+            const multitaskingSimulation = document.getElementById('multitasking-simulation');
+            
+            // 隱藏所有模擬區域
+            schedulingSimulation.classList.add('hidden');
+            syncAsyncSimulation.classList.add('hidden');
+            multitaskingSimulation.classList.add('hidden');
+            
+            if (currentModule === 'scheduling') {
+                processInput.style.display = 'block';
+                schedulingSimulation.classList.remove('hidden');
+            } else if (currentModule === 'sync-async') {
+                processInput.style.display = 'none';
+                syncAsyncSimulation.classList.remove('hidden');
+            } else if (currentModule === 'multitasking') {
+                processInput.style.display = 'none';
+                multitaskingSimulation.classList.remove('hidden');
+            }
+        }
+        
+        function addProcess() {
+            const name = document.getElementById('processName').value || `P${processCounter}`;
+            const arrivalTime = parseInt(document.getElementById('arrivalTime').value) || 0;
+            const burstTime = parseInt(document.getElementById('burstTime').value) || 1;
+            const priority = parseInt(document.getElementById('priority').value) || 1;
+            
+            const process = {
+                id: processes.length,
+                name: name,
+                arrivalTime: arrivalTime,
+                burstTime: burstTime,
+                priority: priority,
+                remainingTime: burstTime,
+                color: colors[processes.length % colors.length]
+            };
+            
+            processes.push(process);
+            processCounter++;
+            
+            // 更新下一個行程名稱
+            document.getElementById('processName').value = `P${processCounter}`;
+            
+            updateProcessList();
+            clearResults();
+        }
+        
+        function updateProcessList() {
+            const listElement = document.getElementById('processList');
+            
+            if (processes.length === 0) {
+                listElement.innerHTML = '<p style="color: #666; text-align: center;">尚未新增任何行程</p>';
+                return;
+            }
+            
+            listElement.innerHTML = processes.map(process => `
+                <div class="process-item">
+                    <div style="width: 20px; height: 20px; background: ${process.color}; border-radius: 50%; margin-right: 10px;"></div>
+                    <strong>${process.name}</strong>
+                    <span style="margin-left: 15px;">到達: ${process.arrivalTime}</span>
+                    <span style="margin-left: 15px;">執行: ${process.burstTime}</span>
+                    ${currentAlgorithm === 'priority' ? `<span style="margin-left: 15px;">優先權: ${process.priority}</span>` : ''}
+                    <button onclick="removeProcess(${process.id})" style="margin-left: auto; background: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer;">刪除</button>
+                </div>
+            `).join('');
+        }
+        
+        function removeProcess(id) {
+            processes = processes.filter(p => p.id !== id);
+            updateProcessList();
+            clearResults();
+        }
+        
+        function clearProcesses() {
+            processes = [];
+            processCounter = 1;
+            document.getElementById('processName').value = 'P1';
+            updateProcessList();
+            clearResults();
+        }
+        
+        function loadSampleData() {
+            processes = [
+                { id: 0, name: 'P1', arrivalTime: 0, burstTime: 8, priority: 3, remainingTime: 8, color: colors[0] },
+                { id: 1, name: 'P2', arrivalTime: 1, burstTime: 4, priority: 1, remainingTime: 4, color: colors[1] },
+                { id: 2, name: 'P3', arrivalTime: 2, burstTime: 9, priority: 4, remainingTime: 9, color: colors[2] },
+                { id: 3, name: 'P4', arrivalTime: 3, burstTime: 5, priority: 2, remainingTime: 5, color: colors[3] }
+            ];
+            processCounter = 5;
+            document.getElementById('processName').value = 'P5';
+            updateProcessList();
+            clearResults();
+        }
+        
+        function clearResults() {
+            document.getElementById('ganttChart').classList.add('hidden');
+            document.getElementById('results').style.display = 'none';
+        }
+        
+        function runSimulation() {
+            if (processes.length === 0) {
+                alert('請先新增行程！');
+                return;
+            }
+            
+            let result;
+            const quantum = parseInt(document.getElementById('quantum').value) || 2;
+            
+            switch (currentAlgorithm) {
+                case 'fcfs':
+                    result = simulateFCFS();
+                    break;
+                case 'sjf':
+                    result = simulateSJF();
+                    break;
+                case 'rr':
+                    result = simulateRR(quantum);
+                    break;
+                case 'priority':
+                    result = simulatePriority();
+                    break;
+            }
+            
+            displayResults(result);
+        }
+        
+        function simulateFCFS() {
+            const sortedProcesses = [...processes].sort((a, b) => a.arrivalTime - b.arrivalTime);
+            const timeline = [];
+            let currentTime = 0;
+            
+            sortedProcesses.forEach(process => {
+                if (currentTime < process.arrivalTime) {
+                    currentTime = process.arrivalTime;
+                }
+                
+                timeline.push({
+                    process: process,
+                    startTime: currentTime,
+                    endTime: currentTime + process.burstTime
+                });
+                
+                currentTime += process.burstTime;
+            });
+            
+            return calculateMetrics(timeline);
+        }
+        
+        function simulateSJF() {
+            const timeline = [];
+            let currentTime = 0;
+            const remaining = [...processes];
+            
+            while (remaining.length > 0) {
+                const available = remaining.filter(p => p.arrivalTime <= currentTime);
+                
+                if (available.length === 0) {
+                    currentTime = Math.min(...remaining.map(p => p.arrivalTime));
+                    continue;
+                }
+                
+                const shortest = available.reduce((min, p) => p.burstTime < min.burstTime ? p : min);
+                const index = remaining.indexOf(shortest);
+                remaining.splice(index, 1);
+                
+                timeline.push({
+                    process: shortest,
+                    startTime: currentTime,
+                    endTime: currentTime + shortest.burstTime
+                });
+                
+                currentTime += shortest.burstTime;
+            }
+            
+            return calculateMetrics(timeline);
+        }
+        
+        function simulateRR(quantum) {
+            const timeline = [];
+            let currentTime = 0;
+            const queue = [];
+            const remaining = [...processes].map(p => ({...p, remainingTime: p.burstTime}));
+            let processIndex = 0;
+            
+            while (remaining.some(p => p.remainingTime > 0) || queue.length > 0) {
+                // 新增到達的行程
+                while (processIndex < remaining.length && remaining[processIndex].arrivalTime <= currentTime) {
+                    queue.push(remaining[processIndex]);
+                    processIndex++;
+                }
+                
+                if (queue.length === 0) {
+                    currentTime = remaining[processIndex].arrivalTime;
+                    continue;
+                }
+                
+                const current = queue.shift();
+                const executeTime = Math.min(quantum, current.remainingTime);
+                
+                timeline.push({
+                    process: current,
+                    startTime: currentTime,
+                    endTime: currentTime + executeTime
+                });
+                
+                currentTime += executeTime;
+                current.remainingTime -= executeTime;
+                
+                // 新增在執行期間到達的行程
+                while (processIndex < remaining.length && remaining[processIndex].arrivalTime <= currentTime) {
+                    queue.push(remaining[processIndex]);
+                    processIndex++;
+                }
+                
+                if (current.remainingTime > 0) {
+                    queue.push(current);
+                }
+            }
+            
+            return calculateMetrics(timeline);
+        }
+        
+        function simulatePriority() {
+            const timeline = [];
+            let currentTime = 0;
+            const remaining = [...processes];
+            
+            while (remaining.length > 0) {
+                const available = remaining.filter(p => p.arrivalTime <= currentTime);
+                
+                if (available.length === 0) {
+                    currentTime = Math.min(...remaining.map(p => p.arrivalTime));
+                    continue;
+                }
+                
+                const highest = available.reduce((min, p) => p.priority < min.priority ? p : min);
+                const index = remaining.indexOf(highest);
+                remaining.splice(index, 1);
+                
+                timeline.push({
+                    process: highest,
+                    startTime: currentTime,
+                    endTime: currentTime + highest.burstTime
+                });
+                
+                currentTime += highest.burstTime;
+            }
+            
+            return calculateMetrics(timeline);
+        }
+        
+        function calculateMetrics(timeline) {
+            const processMetrics = {};
+            
+            processes.forEach(process => {
+                const processBlocks = timeline.filter(block => block.process.id === process.id);
+                const completionTime = Math.max(...processBlocks.map(block => block.endTime));
+                const turnaroundTime = completionTime - process.arrivalTime;
+                const waitingTime = turnaroundTime - process.burstTime;
+                
+                processMetrics[process.id] = {
+                    process: process,
+                    completionTime: completionTime,
+                    turnaroundTime: turnaroundTime,
+                    waitingTime: waitingTime
+                };
+            });
+            
+            const avgTurnaroundTime = Object.values(processMetrics).reduce((sum, p) => sum + p.turnaroundTime, 0) / processes.length;
+            const avgWaitingTime = Object.values(processMetrics).reduce((sum, p) => sum + p.waitingTime, 0) / processes.length;
+            const totalTime = Math.max(...timeline.map(block => block.endTime));
+            const throughput = processes.length / totalTime;
+            
+            return {
+                timeline: timeline,
+                processMetrics: processMetrics,
+                avgTurnaroundTime: avgTurnaroundTime.toFixed(2),
+                avgWaitingTime: avgWaitingTime.toFixed(2),
+                totalTime: totalTime,
+                throughput: throughput.toFixed(3)
+            };
+        }
+        
+        function displayResults(result) {
+            // 顯示甘特圖
+            displayGanttChart(result.timeline);
+            
+            // 顯示結果表格
+            const resultsDiv = document.getElementById('results');
+            const processResultsDiv = document.getElementById('processResults');
+            
+            let tableHTML = `
+                <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+                    <thead>
+                        <tr style="background: #f8f9fa;">
+                            <th style="padding: 10px; border: 1px solid #dee2e6;">行程</th>
+                            <th style="padding: 10px; border: 1px solid #dee2e6;">到達時間</th>
+                            <th style="padding: 10px; border: 1px solid #dee2e6;">執行時間</th>
+                            <th style="padding: 10px; border: 1px solid #dee2e6;">完成時間</th>
+                            <th style="padding: 10px; border: 1px solid #dee2e6;">回轉時間</th>
+                            <th style="padding: 10px; border: 1px solid #dee2e6;">等待時間</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            Object.values(result.processMetrics).forEach(metric => {
+                tableHTML += `
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #dee2e6; text-align: center;">
+                            <div style="display: flex; align-items: center; justify-content: center;">
+                                <div style="width: 15px; height: 15px; background: ${metric.process.color}; border-radius: 50%; margin-right: 8px;"></div>
+                                ${metric.process.name}
+                            </div>
+                        </td>
+                        <td style="padding: 10px; border: 1px solid #dee2e6; text-align: center;">${metric.process.arrivalTime}</td>
+                        <td style="padding: 10px; border: 1px solid #dee2e6; text-align: center;">${metric.process.burstTime}</td>
+                        <td style="padding: 10px; border: 1px solid #dee2e6; text-align: center;">${metric.completionTime}</td>
+                        <td style="padding: 10px; border: 1px solid #dee2e6; text-align: center;">${metric.turnaroundTime}</td>
+                        <td style="padding: 10px; border: 1px solid #dee2e6; text-align: center;">${metric.waitingTime}</td>
+                    </tr>
+                `;
+            });
+            
+            tableHTML += '</tbody></table>';
+            processResultsDiv.innerHTML = tableHTML;
+            
+            // 顯示效能指標
+            const metricsDiv = document.getElementById('metrics');
+            metricsDiv.innerHTML = `
+                <div class="metric-card">
+                    <div class="metric-value">${result.avgTurnaroundTime}</div>
+                    <div class="metric-label">平均回轉時間</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">${result.avgWaitingTime}</div>
+                    <div class="metric-label">平均等待時間</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">${result.totalTime}</div>
+                    <div class="metric-label">總執行時間</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">${result.throughput}</div>
+                    <div class="metric-label">產出率 (行程/時間)</div>
+                </div>
+            `;
+            
+            resultsDiv.style.display = 'block';
+        }
+        
+        function displayGanttChart(timeline) {
+            const ganttTimeline = document.getElementById('ganttTimeline');
+            const timeLabels = document.getElementById('timeLabels');
+            const totalTime = Math.max(...timeline.map(block => block.endTime));
+            
+            ganttTimeline.innerHTML = '';
+            timeLabels.innerHTML = '';
+            
+            timeline.forEach(block => {
+                const width = ((block.endTime - block.startTime) / totalTime) * 100;
+                const ganttBlock = document.createElement('div');
+                ganttBlock.className = 'gantt-block';
+                ganttBlock.style.width = width + '%';
+                ganttBlock.style.background = block.process.color;
+                ganttBlock.textContent = block.process.name;
+                ganttBlock.title = `${block.process.name}: ${block.startTime}-${block.endTime}`;
+                ganttTimeline.appendChild(ganttBlock);
+            });
+            
+            // 時間標籤
+            for (let i = 0; i <= totalTime; i++) {
+                const label = document.createElement('div');
+                label.className = 'time-label';
+                label.style.width = (100 / totalTime) + '%';
+                label.textContent = i;
+                timeLabels.appendChild(label);
+            }
+            
+            document.getElementById('ganttChart').classList.remove('hidden');
+        }
+        
+        // 同步異步示範
+        function runSyncAsyncDemo() {
+            const timeline = document.getElementById('execution-timeline');
+            const log = document.getElementById('execution-log');
+            
+            timeline.innerHTML = '';
+            log.innerHTML = '';
+            
+            if (currentAlgorithm === 'sync') {
+                runSyncDemo(timeline, log);
+            } else if (currentAlgorithm === 'async') {
+                runAsyncDemo(timeline, log);
+            } else if (currentAlgorithm === 'callback') {
+                runCallbackDemo(timeline, log);
+            } else if (currentAlgorithm === 'promise') {
+                runPromiseDemo(timeline, log);
+            }
+        }
+        
+        function runSyncDemo(timeline, log) {
+            const tasks = ['讀取檔案', '處理資料', '寫入結果', '發送通知'];
+            let currentTime = 0;
+            
+            log.innerHTML += `<div>[${formatTime(currentTime)}] 開始同步執行...</div>`;
+            
+            tasks.forEach((task, index) => {
+                setTimeout(() => {
+                    const taskElement = document.createElement('div');
+                    taskElement.className = 'task-block task-running';
+                    taskElement.style.background = colors[index];
+                    taskElement.textContent = task;
+                    timeline.appendChild(taskElement);
+                    
+                    log.innerHTML += `<div>[${formatTime(currentTime + (index + 1) * 1000)}] 執行: ${task}</div>`;
+                    
+                    setTimeout(() => {
+                        taskElement.classList.remove('task-running');
+                        taskElement.classList.add('task-completed');
+                        log.innerHTML += `<div>[${formatTime(currentTime + (index + 1) * 1500)}] 完成: ${task}</div>`;
+                        
+                        if (index === tasks.length - 1) {
+                            log.innerHTML += `<div>[${formatTime(currentTime + tasks.length * 1500)}] 所有任務完成！總時間: ${tasks.length * 1.5}秒</div>`;
+                        }
+                    }, 500);
+                }, index * 1000);
+            });
+        }
+        
+        function runAsyncDemo(timeline, log) {
+            const tasks = ['讀取檔案', '處理資料', '寫入結果', '發送通知'];
+            let currentTime = 0;
+            
+            log.innerHTML += `<div>[${formatTime(currentTime)}] 開始異步執行...</div>`;
+            
+            tasks.forEach((task, index) => {
+                setTimeout(() => {
+                    const taskElement = document.createElement('div');
+                    taskElement.className = 'task-block task-running';
+                    taskElement.style.background = colors[index];
+                    taskElement.textContent = task;
+                    timeline.appendChild(taskElement);
+                    
+                    log.innerHTML += `<div>[${formatTime(currentTime + 100)}] 啟動: ${task}</div>`;
+                    
+                    const duration = Math.random() * 1000 + 500;
+                    setTimeout(() => {
+                        taskElement.classList.remove('task-running');
+                        taskElement.classList.add('task-completed');
+                        log.innerHTML += `<div>[${formatTime(currentTime + duration)}] 完成: ${task}</div>`;
+                    }, duration);
+                }, index * 100);
+            });
+            
+            setTimeout(() => {
+                log.innerHTML += `<div>[${formatTime(currentTime + 2000)}] 所有任務已啟動！異步執行中...</div>`;
+            }, 500);
+        }
+        
+        function runCallbackDemo(timeline, log) {
+            log.innerHTML += `<div>[0ms] 開始回調函數示範...</div>`;
+            
+            function task1(callback) {
+                const taskElement = document.createElement('div');
+                taskElement.className = 'task-block task-running';
+                taskElement.style.background = colors[0];
+                taskElement.textContent = '任務1';
+                timeline.appendChild(taskElement);
+                
+                setTimeout(() => {
+                    taskElement.classList.remove('task-running');
+                    taskElement.classList.add('task-completed');
+                    log.innerHTML += `<div>[1000ms] 任務1完成，調用回調函數</div>`;
+                    callback();
+                }, 1000);
+            }
+            
+            function task2(callback) {
+                const taskElement = document.createElement('div');
+                taskElement.className = 'task-block task-running';
+                taskElement.style.background = colors[1];
+                taskElement.textContent = '任務2';
+                timeline.appendChild(taskElement);
+                
+                setTimeout(() => {
+                    taskElement.classList.remove('task-running');
+                    taskElement.classList.add('task-completed');
+                    log.innerHTML += `<div>[2000ms] 任務2完成，調用回調函數</div>`;
+                    callback();
+                }, 1000);
+            }
+            
+            task1(() => {
+                task2(() => {
+                    log.innerHTML += `<div>[2000ms] 所有回調完成！</div>`;
+                });
+            });
+        }
+        
+        function runPromiseDemo(timeline, log) {
+            log.innerHTML += `<div>[0ms] 開始Promise示範...</div>`;
+            
+            function createTask(name, index, duration) {
+                return new Promise((resolve) => {
+                    const taskElement = document.createElement('div');
+                    taskElement.className = 'task-block task-running';
+                    taskElement.style.background = colors[index];
+                    taskElement.textContent = name;
+                    timeline.appendChild(taskElement);
+                    
+                    setTimeout(() => {
+                        taskElement.classList.remove('task-running');
+                        taskElement.classList.add('task-completed');
+                        log.innerHTML += `<div>[${duration}ms] ${name}完成</div>`;
+                        resolve(name);
+                    }, duration);
+                });
+            }
+            
+            createTask('Promise任務1', 0, 800)
+                .then(() => createTask('Promise任務2', 1, 600))
+                .then(() => createTask('Promise任務3', 2, 1000))
+                .then(() => {
+                    log.innerHTML += `<div>[2400ms] Promise鏈完成！</div>`;
+                })
+                .catch((error) => {
+                    log.innerHTML += `<div>錯誤: ${error}</div>`;
+                });
+        }
+        
+        // 多工處理示範
+        function runMultitaskingDemo() {
+            const timeline = document.getElementById('multitask-timeline');
+            const log = document.getElementById('multitask-log');
+            const cores = parseInt(document.getElementById('cpuCores').value) || 4;
+            
+            timeline.innerHTML = '';
+            log.innerHTML = '';
+            
+            if (currentAlgorithm === 'cooperative') {
+                runCooperativeDemo(timeline, log);
+            } else if (currentAlgorithm === 'preemptive') {
+                runPreemptiveDemo(timeline, log);
+            } else if (currentAlgorithm === 'threading') {
+                runThreadingDemo(timeline, log);
+            } else if (currentAlgorithm === 'parallel') {
+                runParallelDemo(timeline, log, cores);
+            }
+        }
+        
+        function runCooperativeDemo(timeline, log) {
+            const tasks = ['任務A', '任務B', '任務C'];
+            log.innerHTML += `<div>[0ms] 協作式多工開始...</div>`;
+            
+            let currentTime = 0;
+            tasks.forEach((task, index) => {
+                setTimeout(() => {
+                    const taskElement = document.createElement('div');
+                    taskElement.className = 'task-block task-running';
+                    taskElement.style.background = colors[index];
+                    taskElement.textContent = task + ' (主動讓出)';
+                    timeline.appendChild(taskElement);
+                    
+                    log.innerHTML += `<div>[${currentTime}ms] ${task}開始執行</div>`;
+                    
+                    setTimeout(() => {
+                        taskElement.classList.remove('task-running');
+                        taskElement.classList.add('task-completed');
+                        log.innerHTML += `<div>[${currentTime + 1000}ms] ${task}主動讓出CPU</div>`;
+                    }, 1000);
+                    
+                    currentTime += 1200;
+                }, index * 1200);
+            });
+        }
+        
+        function runPreemptiveDemo(timeline, log) {
+            const tasks = ['高優先權任務', '中優先權任務', '低優先權任務'];
+            log.innerHTML += `<div>[0ms] 搶占式多工開始...</div>`;
+            
+            // 先啟動低優先權任務
+            const lowTask = document.createElement('div');
+            lowTask.className = 'task-block task-running';
+            lowTask.style.background = colors[2];
+            lowTask.textContent = tasks[2];
+            timeline.appendChild(lowTask);
+            log.innerHTML += `<div>[0ms] ${tasks[2]}開始執行</div>`;
+            
+            // 500ms後高優先權任務搶占
+            setTimeout(() => {
+                lowTask.classList.remove('task-running');
+                lowTask.classList.add('task-waiting');
+                
+                const highTask = document.createElement('div');
+                highTask.className = 'task-block task-running';
+                highTask.style.background = colors[0];
+                highTask.textContent = tasks[0];
+                timeline.appendChild(highTask);
+                
+                log.innerHTML += `<div>[500ms] ${tasks[0]}搶占CPU</div>`;
+                log.innerHTML += `<div>[500ms] ${tasks[2]}被暫停</div>`;
+                
+                setTimeout(() => {
+                    highTask.classList.remove('task-running');
+                    highTask.classList.add('task-completed');
+                    lowTask.classList.remove('task-waiting');
+                    lowTask.classList.add('task-running');
+                    
+                    log.innerHTML += `<div>[1500ms] ${tasks[0]}完成</div>`;
+                    log.innerHTML += `<div>[1500ms] ${tasks[2]}恢復執行</div>`;
+                }, 1000);
+            }, 500);
+        }
+        
+        function runThreadingDemo(timeline, log) {
+            const threads = ['主執行緒', '工作執行緒1', '工作執行緒2'];
+            log.innerHTML += `<div>[0ms] 多執行緒開始...</div>`;
+            
+            threads.forEach((thread, index) => {
+                setTimeout(() => {
+                    const threadElement = document.createElement('div');
+                    threadElement.className = 'task-block task-running';
+                    threadElement.style.background = colors[index];
+                    threadElement.textContent = thread;
+                    timeline.appendChild(threadElement);
+                    
+                    log.innerHTML += `<div>[${index * 200}ms] ${thread}啟動</div>`;
+                    
+                    setTimeout(() => {
+                        threadElement.classList.remove('task-running');
+                        threadElement.classList.add('task-completed');
+                        log.innerHTML += `<div>[${index * 200 + 1500}ms] ${thread}完成</div>`;
+                    }, 1500);
+                }, index * 200);
+            });
+        }
+        
+        function runParallelDemo(timeline, log, cores) {
+            log.innerHTML += `<div>[0ms] 平行處理開始 (${cores}核心)...</div>`;
+            
+            // 創建CPU核心視覺化
+            const coreContainer = document.createElement('div');
+            coreContainer.style.marginBottom = '20px';
+            
+            for (let i = 0; i < cores; i++) {
+                const core = document.createElement('div');
+                core.className = 'cpu-core';
+                core.textContent = `核心${i + 1}`;
+                core.id = `core-${i}`;
+                coreContainer.appendChild(core);
+            }
+            timeline.appendChild(coreContainer);
+            
+            // 分配任務到不同核心
+            const tasks = ['計算任務A', '計算任務B', '計算任務C', '計算任務D', '計算任務E', '計算任務F'];
+            
+            tasks.forEach((task, index) => {
+                const coreIndex = index % cores;
+                const core = document.getElementById(`core-${coreIndex}`);
+                
+                setTimeout(() => {
+                    core.classList.add('active');
+                    core.textContent = `執行中...`;
+                    
+                    const taskElement = document.createElement('div');
+                    taskElement.className = 'task-block task-running';
+                    taskElement.style.background = colors[index % colors.length];
+                    taskElement.textContent = task;
+                    timeline.appendChild(taskElement);
+                    
+                    log.innerHTML += `<div>[${index * 100}ms] ${task}在核心${coreIndex + 1}開始</div>`;
+                    
+                    setTimeout(() => {
+                        core.classList.remove('active');
+                        core.textContent = `核心${coreIndex + 1}`;
+                        taskElement.classList.remove('task-running');
+                        taskElement.classList.add('task-completed');
+                        log.innerHTML += `<div>[${index * 100 + 1000}ms] ${task}完成</div>`;
+                    }, 1000);
+                }, index * 100);
+            });
+        }
+        
+        function resetDemo() {
+            document.getElementById('execution-timeline').innerHTML = '';
+            document.getElementById('execution-log').innerHTML = '';
+            document.getElementById('multitask-timeline').innerHTML = '';
+            document.getElementById('multitask-log').innerHTML = '';
+        }
+        
+        function formatTime(ms) {
+            return ms + 'ms';
+        }
+        
+        // 初始化
+        updateAlgorithmInfo();
+        updateInputFields();
+        updateProcessInputVisibility();
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98a2e504128df1d4',t:'MTc1OTcyOTk2Ny4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
