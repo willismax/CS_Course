@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>程序控制表 (PCB) 互動展示</title>
+    <style>
+        body {
+            box-sizing: border-box;
+            font-family: 'Microsoft JhengHei', Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #4a5568;
+            margin-bottom: 10px;
+            font-size: 2.5rem;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #718096;
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+        }
+
+        .control-panel {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #4299e1, #3182ce);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(45deg, #48bb78, #38a169);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(45deg, #ed8936, #dd6b20);
+            color: white;
+        }
+
+        .btn-danger {
+            background: linear-gradient(45deg, #f56565, #e53e3e);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .cpu-section, .pcb-section {
+            background: #f7fafc;
+            border-radius: 15px;
+            padding: 25px;
+            border: 2px solid #e2e8f0;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #2d3748;
+            text-align: center;
+        }
+
+        .cpu-core {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+            position: relative;
+            transition: all 0.5s ease;
+        }
+
+        .cpu-core.running {
+            animation: pulse 1s infinite;
+            box-shadow: 0 0 30px rgba(255, 107, 107, 0.6);
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .current-process {
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #2d3748;
+            margin-bottom: 15px;
+        }
+
+        .system-status {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+        }
+
+        .status-item {
+            text-align: center;
+            padding: 10px;
+            background: #f7fafc;
+            border-radius: 8px;
+        }
+
+        .status-label {
+            display: block;
+            font-size: 12px;
+            color: #718096;
+            margin-bottom: 5px;
+        }
+
+        .status-value {
+            display: block;
+            font-size: 18px;
+            font-weight: bold;
+            color: #2d3748;
+        }
+
+        .process-queue {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+
+        .queue-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #4a5568;
+        }
+
+        .process-item {
+            display: inline-block;
+            background: linear-gradient(45deg, #4299e1, #3182ce);
+            color: white;
+            padding: 8px 15px;
+            margin: 5px;
+            border-radius: 20px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .process-item.executing {
+            background: linear-gradient(45deg, #48bb78, #38a169);
+            animation: glow 1s infinite alternate;
+        }
+
+        @keyframes glow {
+            from { box-shadow: 0 0 10px rgba(72, 187, 120, 0.5); }
+            to { box-shadow: 0 0 20px rgba(72, 187, 120, 0.8); }
+        }
+
+        .pcb-container {
+            display: grid;
+            gap: 15px;
+        }
+
+        .pcb-card {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            border-left: 4px solid #4299e1;
+            transition: all 0.3s ease;
+            opacity: 0.7;
+        }
+
+        .pcb-card.active {
+            border-left-color: #48bb78;
+            opacity: 1;
+            box-shadow: 0 5px 15px rgba(72, 187, 120, 0.2);
+            transform: translateX(5px);
+        }
+
+        .pcb-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .process-id {
+            font-weight: bold;
+            color: #2d3748;
+        }
+
+        .process-state {
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .state-ready {
+            background: #bee3f8;
+            color: #2b6cb0;
+        }
+
+        .state-running {
+            background: #c6f6d5;
+            color: #276749;
+        }
+
+        .state-waiting {
+            background: #fed7d7;
+            color: #c53030;
+        }
+
+        .state-new {
+            background: #e2e8f0;
+            color: #4a5568;
+        }
+
+        .state-terminated {
+            background: #d6f5d6;
+            color: #22543d;
+        }
+
+        .pcb-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            font-size: 14px;
+        }
+
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .detail-label {
+            color: #718096;
+        }
+
+        .detail-value {
+            font-weight: bold;
+            color: #2d3748;
+        }
+
+        .info-panel {
+            background: #edf2f7;
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 20px;
+        }
+
+        .info-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #2d3748;
+            margin-bottom: 15px;
+        }
+
+        .info-content {
+            line-height: 1.6;
+            color: #4a5568;
+        }
+
+        .highlight {
+            background: linear-gradient(120deg, #a8edea 0%, #fed6e3 100%);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .control-panel {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn {
+                width: 200px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>程序控制表 (PCB) 互動展示</h1>
+        <p class="subtitle">探索CPU程序與程序控制表的動態運作機制</p>
+
+        <div class="control-panel">
+            <button class="btn btn-primary" onclick="createProcess()">建立新程序</button>
+            <button class="btn btn-success" onclick="startScheduling()">開始排程</button>
+            <button class="btn btn-warning" onclick="pauseScheduling()">暫停排程</button>
+            <button class="btn btn-danger" onclick="resetSystem()">重置系統</button>
+        </div>
+
+        <div class="main-content">
+            <div class="cpu-section">
+                <h3 class="section-title">🖥️ CPU 核心</h3>
+                <div class="cpu-core" id="cpuCore">
+                    CPU
+                </div>
+                <div class="current-process" id="currentProcess">
+                    目前執行：無
+                </div>
+                
+                <div class="system-status">
+                    <div class="status-item">
+                        <span class="status-label">系統時間:</span>
+                        <span class="status-value" id="systemTime">0s</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">時間片剩餘:</span>
+                        <span class="status-value" id="timeSliceRemaining">0s</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">已完成程序:</span>
+                        <span class="status-value" id="completedCount">0</span>
+                    </div>
+                </div>
+                
+                <div class="process-queue">
+                    <div class="queue-title">📋 就緒佇列 (Ready Queue)</div>
+                    <div id="readyQueue">
+                        <span style="color: #718096;">暫無程序等待執行</span>
+                    </div>
+                </div>
+                
+                <div class="process-queue">
+                    <div class="queue-title">⏳ 等待佇列 (Waiting Queue)</div>
+                    <div id="waitingQueue">
+                        <span style="color: #718096;">暫無程序等待I/O</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pcb-section">
+                <h3 class="section-title">📊 程序控制表 (PCB)</h3>
+                <div class="pcb-container" id="pcbContainer">
+                    <div style="text-align: center; color: #718096; padding: 20px;">
+                        點擊「建立新程序」來查看PCB資訊
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-panel">
+            <h3 class="info-title">💡 程序控制表 (PCB) 說明</h3>
+            <div class="info-content">
+                <p><span class="highlight">程序控制表 (Process Control Block, PCB)</span> 是作業系統中每個程序的重要資料結構，包含：</p>
+                <ul>
+                    <li><strong>程序識別碼 (PID)：</strong>唯一識別每個程序</li>
+                    <li><strong>程序狀態：</strong>就緒(Ready)、執行(Running)、等待(Waiting)</li>
+                    <li><strong>程式計數器 (PC)：</strong>記錄下一個要執行的指令位址</li>
+                    <li><strong>CPU暫存器：</strong>保存程序執行時的暫存器內容</li>
+                    <li><strong>記憶體管理資訊：</strong>程序在記憶體中的位置和大小</li>
+                    <li><strong>優先權：</strong>決定程序被排程執行的順序</li>
+                </ul>
+                <p>當CPU進行<span class="highlight">內容切換 (Context Switch)</span>時，會將目前程序的狀態保存到PCB中，然後載入下一個程序的PCB資訊，實現多工處理。</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let processes = [];
+        let currentProcessId = null;
+        let processCounter = 1;
+        let schedulingInterval = null;
+        let isScheduling = false;
+        let timeSlice = 3; // 時間片長度（秒）
+        let currentTimeSliceRemaining = 0;
+        let systemTime = 0;
+        let completedProcesses = [];
+
+        class Process {
+            constructor(id, name) {
+                this.id = id;
+                this.name = name;
+                this.state = 'New';
+                this.priority = Math.floor(Math.random() * 10) + 1;
+                this.programCounter = Math.floor(Math.random() * 1000) + 100;
+                this.cpuTime = 0;
+                this.totalBurstTime = Math.floor(Math.random() * 8) + 3; // 需要的總CPU時間
+                this.remainingTime = this.totalBurstTime;
+                this.memorySize = Math.floor(Math.random() * 512) + 128;
+                this.createdTime = new Date().toLocaleTimeString();
+                this.waitingTime = 0;
+                this.turnaroundTime = 0;
+                this.lastExecuteTime = 0;
+                this.ioWaitTime = 0; // I/O等待時間
+                
+                // 模擬程序生命週期
+                setTimeout(() => {
+                    if (this.state === 'New') {
+                        this.state = 'Ready';
+                        updateDisplay();
+                        showNotification(`${this.name} 已載入記憶體，進入就緒狀態`);
+                    }
+                }, 1000);
+            }
+            
+            executeForOneSecond() {
+                if (this.state === 'Running') {
+                    this.cpuTime++;
+                    this.remainingTime--;
+                    this.programCounter += Math.floor(Math.random() * 5) + 1;
+                    this.lastExecuteTime = systemTime;
+                    
+                    // 隨機產生I/O請求
+                    if (Math.random() < 0.15 && this.remainingTime > 0) {
+                        this.state = 'Waiting';
+                        this.ioWaitTime = Math.floor(Math.random() * 3) + 2;
+                        showNotification(`${this.name} 請求I/O操作，進入等待狀態`);
+                        return 'io_request';
+                    }
+                    
+                    // 檢查是否完成
+                    if (this.remainingTime <= 0) {
+                        this.state = 'Terminated';
+                        this.turnaroundTime = systemTime - parseInt(this.createdTime.split(':')[2]);
+                        showNotification(`${this.name} 執行完成！`, 'success');
+                        return 'completed';
+                    }
+                }
+                return 'continue';
+            }
+        }
+
+        function createProcess() {
+            const process = new Process(processCounter, `程序-${processCounter}`);
+            processes.push(process);
+            processCounter++;
+            
+            updateDisplay();
+            showNotification(`已建立 ${process.name} (PID: ${process.id})`);
+        }
+
+        function startScheduling() {
+            if (processes.length === 0) {
+                showNotification('請先建立程序！', 'warning');
+                return;
+            }
+            
+            if (isScheduling) {
+                showNotification('排程已在執行中', 'info');
+                return;
+            }
+            
+            isScheduling = true;
+            document.getElementById('cpuCore').classList.add('running');
+            
+            // 每秒更新一次系統狀態
+            schedulingInterval = setInterval(() => {
+                systemTick();
+            }, 1000);
+            
+            showNotification('開始程序排程 - 使用時間片輪轉排程');
+        }
+
+        function pauseScheduling() {
+            isScheduling = false;
+            if (schedulingInterval) {
+                clearInterval(schedulingInterval);
+                schedulingInterval = null;
+            }
+            
+            document.getElementById('cpuCore').classList.remove('running');
+            
+            // 將執行中的程序設為就緒狀態
+            if (currentProcessId) {
+                const currentProcess = processes.find(p => p.id === currentProcessId);
+                if (currentProcess && currentProcess.state === 'Running') {
+                    currentProcess.state = 'Ready';
+                    showNotification(`${currentProcess.name} 被暫停，回到就緒狀態`);
+                }
+                currentProcessId = null;
+            }
+            
+            updateDisplay();
+            showNotification('已暫停排程');
+        }
+
+        function resetSystem() {
+            pauseScheduling();
+            processes = [];
+            completedProcesses = [];
+            currentProcessId = null;
+            processCounter = 1;
+            systemTime = 0;
+            currentTimeSliceRemaining = 0;
+            updateDisplay();
+            showNotification('系統已重置');
+        }
+
+        function systemTick() {
+            systemTime++;
+            
+            // 處理I/O等待中的程序
+            processes.forEach(process => {
+                if (process.state === 'Waiting') {
+                    process.ioWaitTime--;
+                    if (process.ioWaitTime <= 0) {
+                        process.state = 'Ready';
+                        showNotification(`${process.name} I/O完成，回到就緒狀態`);
+                    }
+                }
+                
+                // 計算等待時間
+                if (process.state === 'Ready') {
+                    process.waitingTime++;
+                }
+            });
+            
+            // 執行目前程序
+            if (currentProcessId) {
+                const currentProcess = processes.find(p => p.id === currentProcessId);
+                if (currentProcess) {
+                    const result = currentProcess.executeForOneSecond();
+                    currentTimeSliceRemaining--;
+                    
+                    if (result === 'completed') {
+                        // 程序完成
+                        completedProcesses.push(currentProcess);
+                        processes = processes.filter(p => p.id !== currentProcess.id);
+                        currentProcessId = null;
+                        currentTimeSliceRemaining = 0;
+                    } else if (result === 'io_request') {
+                        // 程序請求I/O
+                        currentProcessId = null;
+                        currentTimeSliceRemaining = 0;
+                    } else if (currentTimeSliceRemaining <= 0) {
+                        // 時間片用完
+                        currentProcess.state = 'Ready';
+                        showNotification(`${currentProcess.name} 時間片用完，進行內容切換`);
+                        currentProcessId = null;
+                    }
+                }
+            }
+            
+            // 如果沒有程序在執行，選擇下一個程序
+            if (!currentProcessId) {
+                scheduleNextProcess();
+            }
+            
+            updateDisplay();
+        }
+
+        function scheduleNextProcess() {
+            const readyProcesses = processes.filter(p => p.state === 'Ready');
+            
+            if (readyProcesses.length > 0) {
+                // 使用最短剩餘時間優先 (SRTF) 排程
+                readyProcesses.sort((a, b) => {
+                    if (a.remainingTime === b.remainingTime) {
+                        return b.priority - a.priority; // 相同剩餘時間則比較優先權
+                    }
+                    return a.remainingTime - b.remainingTime;
+                });
+                
+                const nextProcess = readyProcesses[0];
+                nextProcess.state = 'Running';
+                currentProcessId = nextProcess.id;
+                currentTimeSliceRemaining = timeSlice;
+                
+                showNotification(`內容切換：${nextProcess.name} 開始執行`);
+            } else if (processes.length > 0) {
+                // 所有程序都在等待I/O
+                showNotification('所有程序都在等待I/O操作', 'info');
+            }
+        }
+
+        function updateDisplay() {
+            updateCPUDisplay();
+            updateSystemStatus();
+            updateReadyQueue();
+            updateWaitingQueue();
+            updatePCBDisplay();
+        }
+
+        function updateCPUDisplay() {
+            const currentProcessElement = document.getElementById('currentProcess');
+            if (currentProcessId) {
+                const process = processes.find(p => p.id === currentProcessId);
+                currentProcessElement.textContent = `目前執行：${process.name} (剩餘: ${process.remainingTime}s)`;
+            } else {
+                currentProcessElement.textContent = '目前執行：無';
+            }
+        }
+
+        function updateSystemStatus() {
+            document.getElementById('systemTime').textContent = `${systemTime}s`;
+            document.getElementById('timeSliceRemaining').textContent = `${Math.max(0, currentTimeSliceRemaining)}s`;
+            document.getElementById('completedCount').textContent = completedProcesses.length;
+        }
+
+        function updateReadyQueue() {
+            const readyQueue = document.getElementById('readyQueue');
+            const readyProcesses = processes.filter(p => p.state === 'Ready');
+            
+            if (readyProcesses.length === 0) {
+                readyQueue.innerHTML = '<span style="color: #718096;">暫無程序等待執行</span>';
+            } else {
+                readyQueue.innerHTML = readyProcesses
+                    .sort((a, b) => a.remainingTime - b.remainingTime)
+                    .map(p => `<span class="process-item">${p.name} (${p.remainingTime}s)</span>`)
+                    .join('');
+            }
+        }
+
+        function updateWaitingQueue() {
+            const waitingQueue = document.getElementById('waitingQueue');
+            const waitingProcesses = processes.filter(p => p.state === 'Waiting');
+            
+            if (waitingProcesses.length === 0) {
+                waitingQueue.innerHTML = '<span style="color: #718096;">暫無程序等待I/O</span>';
+            } else {
+                waitingQueue.innerHTML = waitingProcesses
+                    .map(p => `<span class="process-item" style="background: linear-gradient(45deg, #f56565, #e53e3e);">${p.name} (I/O: ${p.ioWaitTime}s)</span>`)
+                    .join('');
+            }
+        }
+
+        function updatePCBDisplay() {
+            const pcbContainer = document.getElementById('pcbContainer');
+            
+            if (processes.length === 0 && completedProcesses.length === 0) {
+                pcbContainer.innerHTML = '<div style="text-align: center; color: #718096; padding: 20px;">點擊「建立新程序」來查看PCB資訊</div>';
+                return;
+            }
+            
+            const allProcesses = [...processes, ...completedProcesses];
+            
+            pcbContainer.innerHTML = allProcesses.map(process => `
+                <div class="pcb-card ${process.state === 'Running' ? 'active' : ''}">
+                    <div class="pcb-header">
+                        <span class="process-id">${process.name} (PID: ${process.id})</span>
+                        <span class="process-state state-${process.state.toLowerCase()}">${getStateText(process.state)}</span>
+                    </div>
+                    <div class="pcb-details">
+                        <div class="detail-item">
+                            <span class="detail-label">優先權:</span>
+                            <span class="detail-value">${process.priority}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">程式計數器:</span>
+                            <span class="detail-value">${process.programCounter}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">CPU時間:</span>
+                            <span class="detail-value">${process.cpuTime}s</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">剩餘時間:</span>
+                            <span class="detail-value">${Math.max(0, process.remainingTime)}s</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">等待時間:</span>
+                            <span class="detail-value">${process.waitingTime}s</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">記憶體大小:</span>
+                            <span class="detail-value">${process.memorySize}KB</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function getStateText(state) {
+            const stateMap = {
+                'New': '新建',
+                'Ready': '就緒',
+                'Running': '執行中',
+                'Waiting': '等待',
+                'Terminated': '已完成'
+            };
+            return stateMap[state] || state;
+        }
+
+        function showNotification(message, type = 'success') {
+            // 簡單的通知顯示
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${type === 'warning' ? '#fed7d7' : type === 'info' ? '#bee3f8' : '#c6f6d5'};
+                color: ${type === 'warning' ? '#c53030' : type === 'info' ? '#2b6cb0' : '#276749'};
+                padding: 15px 20px;
+                border-radius: 10px;
+                box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+                z-index: 1000;
+                font-weight: bold;
+                transition: all 0.3s ease;
+            `;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                notification.style.transform = 'translateX(100%)';
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 3000);
+        }
+
+        // 初始化顯示
+        updateDisplay();
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98a2d1e595f5f1d4',t:'MTc1OTcyOTE4NC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
