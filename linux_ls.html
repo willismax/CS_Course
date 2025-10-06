@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Linux ls -l 命令詳解</title>
+    <style>
+        body {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+        
+        .header p {
+            margin: 10px 0 0 0;
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .terminal {
+            background: #1e1e1e;
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            padding: 20px;
+            margin: 30px;
+            border-radius: 10px;
+            border: 2px solid #333;
+            position: relative;
+            overflow-x: auto;
+        }
+        
+        .terminal::before {
+            content: "user@linux:~$ ls -l";
+            display: block;
+            color: #00aaff;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+        
+        .file-line {
+            display: block;
+            margin: 8px 0;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        
+        .file-line:hover {
+            background: rgba(0, 255, 0, 0.1);
+            transform: translateX(5px);
+        }
+        
+        .file-line.selected {
+            background: rgba(255, 255, 0, 0.2);
+            border-left: 4px solid #ffff00;
+        }
+        
+        .explanation {
+            margin: 30px;
+            padding: 25px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            border-left: 5px solid #007bff;
+        }
+        
+        .field-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 30px;
+        }
+        
+        .field-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border-top: 4px solid #007bff;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .field-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+        
+        .field-card h3 {
+            color: #007bff;
+            margin: 0 0 15px 0;
+            font-size: 1.3rem;
+        }
+        
+        .field-card .example {
+            background: #e9ecef;
+            padding: 10px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+        
+        .interactive-demo {
+            margin: 30px;
+            padding: 25px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border-radius: 15px;
+            color: white;
+        }
+        
+        .demo-controls {
+            display: flex;
+            gap: 15px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        
+        .demo-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 2px solid rgba(255,255,255,0.3);
+            padding: 12px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+        
+        .demo-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+        
+        .demo-btn.active {
+            background: white;
+            color: #f5576c;
+        }
+        
+        .highlight {
+            background: rgba(255, 255, 0, 0.3);
+            padding: 2px 4px;
+            border-radius: 3px;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        .permission-visual {
+            display: flex;
+            gap: 10px;
+            margin: 15px 0;
+            flex-wrap: wrap;
+        }
+        
+        .perm-group {
+            background: #e9ecef;
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+            min-width: 80px;
+        }
+        
+        .perm-group.owner { border-top: 3px solid #28a745; }
+        .perm-group.group { border-top: 3px solid #ffc107; }
+        .perm-group.other { border-top: 3px solid #dc3545; }
+        
+        @media (max-width: 768px) {
+            .header h1 { font-size: 2rem; }
+            .demo-controls { justify-content: center; }
+            .terminal { margin: 20px; font-size: 0.9rem; }
+            .field-grid { margin: 20px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🐧 Linux ls -l 命令詳解</h1>
+            <p>互動式學習 Linux 檔案列表的詳細資訊</p>
+        </div>
+        
+        <div class="terminal" id="terminal">
+            <div class="file-line" data-type="directory">drwxr-xr-x  3 user group    4096 Dec 15 10:30 Documents</div>
+            <div class="file-line" data-type="file">-rw-r--r--  1 user group    2048 Dec 15 09:15 readme.txt</div>
+            <div class="file-line" data-type="executable">-rwxr-xr-x  1 user group    8192 Dec 14 16:45 script.sh</div>
+            <div class="file-line" data-type="link">lrwxrwxrwx  1 user group      12 Dec 15 11:00 link.txt -> readme.txt</div>
+            <div class="file-line" data-type="file">-rw-------  1 user group    1024 Dec 13 14:20 private.key</div>
+        </div>
+        
+        <div class="explanation">
+            <h2>📋 點擊上方任一檔案行來查看詳細解析</h2>
+            <p>每一行都包含了豐富的檔案資訊，讓我們一起探索各個欄位的含義！</p>
+        </div>
+        
+        <div class="interactive-demo">
+            <h2>🎯 互動式欄位解析</h2>
+            <p>選擇要重點顯示的欄位：</p>
+            <div class="demo-controls">
+                <button class="demo-btn" onclick="highlightField('permissions')">檔案權限</button>
+                <button class="demo-btn" onclick="highlightField('links')">連結數</button>
+                <button class="demo-btn" onclick="highlightField('owner')">擁有者</button>
+                <button class="demo-btn" onclick="highlightField('group')">群組</button>
+                <button class="demo-btn" onclick="highlightField('size')">檔案大小</button>
+                <button class="demo-btn" onclick="highlightField('date')">修改時間</button>
+                <button class="demo-btn" onclick="highlightField('name')">檔案名稱</button>
+                <button class="demo-btn" onclick="clearHighlight()">清除高亮</button>
+            </div>
+        </div>
+        
+        <div class="field-grid">
+            <div class="field-card">
+                <h3>🔐 檔案權限 (第1欄)</h3>
+                <div class="example">drwxr-xr-x</div>
+                <p><strong>第1個字元</strong>：檔案類型</p>
+                <ul>
+                    <li><code>d</code> = 目錄</li>
+                    <li><code>-</code> = 一般檔案</li>
+                    <li><code>l</code> = 符號連結</li>
+                </ul>
+                <p><strong>後9個字元</strong>：權限設定 (rwx rwx rwx)</p>
+                <div class="permission-visual">
+                    <div class="perm-group owner">
+                        <strong>擁有者</strong><br>
+                        rwx
+                    </div>
+                    <div class="perm-group group">
+                        <strong>群組</strong><br>
+                        r-x
+                    </div>
+                    <div class="perm-group other">
+                        <strong>其他人</strong><br>
+                        r-x
+                    </div>
+                </div>
+                <p>r=讀取, w=寫入, x=執行, -=無權限</p>
+            </div>
+            
+            <div class="field-card">
+                <h3>🔗 連結數 (第2欄)</h3>
+                <div class="example">3</div>
+                <p>指向此檔案的硬連結數量</p>
+                <ul>
+                    <li>目錄：包含的子目錄數 + 2</li>
+                    <li>檔案：指向此檔案的連結數</li>
+                </ul>
+            </div>
+            
+            <div class="field-card">
+                <h3>👤 擁有者 (第3欄)</h3>
+                <div class="example">user</div>
+                <p>檔案的擁有者使用者名稱</p>
+                <ul>
+                    <li>可以是使用者名稱或 UID</li>
+                    <li>擁有者對檔案有特殊權限</li>
+                </ul>
+            </div>
+            
+            <div class="field-card">
+                <h3>👥 群組 (第4欄)</h3>
+                <div class="example">group</div>
+                <p>檔案所屬的群組名稱</p>
+                <ul>
+                    <li>可以是群組名稱或 GID</li>
+                    <li>群組成員共享群組權限</li>
+                </ul>
+            </div>
+            
+            <div class="field-card">
+                <h3>📏 檔案大小 (第5欄)</h3>
+                <div class="example">4096</div>
+                <p>檔案大小（以位元組為單位）</p>
+                <ul>
+                    <li>目錄：通常是 4096 的倍數</li>
+                    <li>檔案：實際檔案大小</li>
+                    <li>可用 -h 參數顯示人類可讀格式</li>
+                </ul>
+            </div>
+            
+            <div class="field-card">
+                <h3>📅 修改時間 (第6-8欄)</h3>
+                <div class="example">Dec 15 10:30</div>
+                <p>檔案最後修改的日期和時間</p>
+                <ul>
+                    <li>格式：月 日 時:分</li>
+                    <li>超過一年會顯示年份</li>
+                    <li>可用 --time-style 自訂格式</li>
+                </ul>
+            </div>
+            
+            <div class="field-card">
+                <h3>📄 檔案名稱 (第9欄)</h3>
+                <div class="example">Documents</div>
+                <p>檔案或目錄的名稱</p>
+                <ul>
+                    <li>符號連結會顯示 → 目標</li>
+                    <li>特殊字元可能被轉義</li>
+                    <li>顏色編碼顯示不同檔案類型</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 檔案行點擊事件
+        document.querySelectorAll('.file-line').forEach(line => {
+            line.addEventListener('click', function() {
+                // 移除其他選中狀態
+                document.querySelectorAll('.file-line').forEach(l => l.classList.remove('selected'));
+                // 添加選中狀態
+                this.classList.add('selected');
+                
+                // 顯示詳細解析
+                showDetailedAnalysis(this.textContent, this.dataset.type);
+            });
+        });
+        
+        function showDetailedAnalysis(lineText, fileType) {
+            const explanation = document.querySelector('.explanation');
+            const parts = lineText.trim().split(/\s+/);
+            
+            let typeDescription = '';
+            switch(fileType) {
+                case 'directory':
+                    typeDescription = '📁 這是一個目錄';
+                    break;
+                case 'file':
+                    typeDescription = '📄 這是一個一般檔案';
+                    break;
+                case 'executable':
+                    typeDescription = '⚡ 這是一個可執行檔案';
+                    break;
+                case 'link':
+                    typeDescription = '🔗 這是一個符號連結';
+                    break;
+            }
+            
+            explanation.innerHTML = `
+                <h2>${typeDescription}</h2>
+                <div style="background: white; padding: 20px; border-radius: 10px; margin: 15px 0;">
+                    <h3>詳細解析：</h3>
+                    <div style="font-family: 'Courier New', monospace; background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 10px 0;">
+                        ${lineText}
+                    </div>
+                    <div style="display: grid; gap: 10px; margin-top: 15px;">
+                        <div><strong>權限：</strong> <code>${parts[0]}</code> - ${analyzePermissions(parts[0])}</div>
+                        <div><strong>連結數：</strong> <code>${parts[1]}</code></div>
+                        <div><strong>擁有者：</strong> <code>${parts[2]}</code></div>
+                        <div><strong>群組：</strong> <code>${parts[3]}</code></div>
+                        <div><strong>大小：</strong> <code>${parts[4]}</code> 位元組</div>
+                        <div><strong>修改時間：</strong> <code>${parts[5]} ${parts[6]} ${parts[7]}</code></div>
+                        <div><strong>檔案名稱：</strong> <code>${parts.slice(8).join(' ')}</code></div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function analyzePermissions(perm) {
+            const type = perm[0];
+            const owner = perm.slice(1, 4);
+            const group = perm.slice(4, 7);
+            const other = perm.slice(7, 10);
+            
+            let typeDesc = '';
+            switch(type) {
+                case 'd': typeDesc = '目錄'; break;
+                case '-': typeDesc = '一般檔案'; break;
+                case 'l': typeDesc = '符號連結'; break;
+                default: typeDesc = '特殊檔案';
+            }
+            
+            return `${typeDesc}，擁有者(${owner}) 群組(${group}) 其他人(${other})`;
+        }
+        
+        function highlightField(field) {
+            // 清除之前的高亮
+            clearHighlight();
+            
+            // 設定按鈕狀態
+            document.querySelectorAll('.demo-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // 根據欄位類型高亮對應部分
+            document.querySelectorAll('.file-line').forEach(line => {
+                const text = line.textContent;
+                const parts = text.trim().split(/\s+/);
+                let highlightedText = text;
+                
+                switch(field) {
+                    case 'permissions':
+                        highlightedText = text.replace(parts[0], `<span class="highlight">${parts[0]}</span>`);
+                        break;
+                    case 'links':
+                        highlightedText = text.replace(parts[1], `<span class="highlight">${parts[1]}</span>`);
+                        break;
+                    case 'owner':
+                        highlightedText = text.replace(parts[2], `<span class="highlight">${parts[2]}</span>`);
+                        break;
+                    case 'group':
+                        highlightedText = text.replace(parts[3], `<span class="highlight">${parts[3]}</span>`);
+                        break;
+                    case 'size':
+                        highlightedText = text.replace(parts[4], `<span class="highlight">${parts[4]}</span>`);
+                        break;
+                    case 'date':
+                        const dateStr = `${parts[5]} ${parts[6]} ${parts[7]}`;
+                        highlightedText = text.replace(dateStr, `<span class="highlight">${dateStr}</span>`);
+                        break;
+                    case 'name':
+                        const nameStr = parts.slice(8).join(' ');
+                        highlightedText = text.replace(nameStr, `<span class="highlight">${nameStr}</span>`);
+                        break;
+                }
+                
+                line.innerHTML = highlightedText;
+            });
+        }
+        
+        function clearHighlight() {
+            document.querySelectorAll('.demo-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.file-line').forEach(line => {
+                line.innerHTML = line.textContent;
+            });
+        }
+        
+        // 初始化提示
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(() => {
+                document.querySelector('.file-line').click();
+            }, 1000);
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98a307f9c016f1d4',t:'MTc1OTczMTM5OS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
