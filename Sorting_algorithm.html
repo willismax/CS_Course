@@ -1,0 +1,1888 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>演算法視覺化工具</title>
+    <style>
+        body {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100%;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #4a5568;
+            margin-bottom: 30px;
+            font-size: 2.5rem;
+        }
+        
+        .algorithm-selector {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+        
+        .algo-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            background: #4299e1;
+            color: white;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+        
+        .algo-btn:hover {
+            background: #3182ce;
+            transform: translateY(-2px);
+        }
+        
+        .algo-btn.active {
+            background: #38a169;
+        }
+        
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f7fafc;
+            border-radius: 15px;
+        }
+        
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .control-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 20px;
+            background: #48bb78;
+            color: white;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .control-btn:hover {
+            background: #38a169;
+        }
+        
+        .control-btn:disabled {
+            background: #a0aec0;
+            cursor: not-allowed;
+        }
+        
+        input[type="range"] {
+            width: 120px;
+        }
+        
+        .visualization-area {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 20px;
+            min-height: 400px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .array-container {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .array-element {
+            width: 50px;
+            height: 50px;
+            background: #4299e1;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .array-element.comparing {
+            background: #f56565;
+            transform: scale(1.1);
+        }
+        
+        .array-element.swapping {
+            background: #ed8936;
+            transform: scale(1.2);
+            z-index: 10;
+            position: relative;
+        }
+        
+        .array-element.moving-up {
+            animation: moveUp 0.6s ease-in-out;
+            z-index: 15;
+        }
+        
+        .array-element.moving-down {
+            animation: moveDown 0.6s ease-in-out;
+            z-index: 15;
+        }
+        
+        @keyframes moveUp {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-60px); }
+            100% { transform: translateY(0px); }
+        }
+        
+        @keyframes moveDown {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(60px); }
+            100% { transform: translateY(0px); }
+        }
+        
+        .array-element.slide-left {
+            animation: slideLeft 0.8s ease-in-out;
+            z-index: 12;
+        }
+        
+        .array-element.slide-right {
+            animation: slideRight 0.8s ease-in-out;
+            z-index: 12;
+        }
+        
+        @keyframes slideLeft {
+            0% { transform: translateX(0px); }
+            50% { transform: translateX(-55px) translateY(-30px) scale(1.1); }
+            100% { transform: translateX(0px); }
+        }
+        
+        @keyframes slideRight {
+            0% { transform: translateX(0px); }
+            50% { transform: translateX(55px) translateY(-30px) scale(1.1); }
+            100% { transform: translateX(0px); }
+        }
+        
+        .array-element.sorted {
+            background: #48bb78;
+        }
+        
+        .array-element.pivot {
+            background: #9f7aea;
+            transform: scale(1.15);
+        }
+        
+        .info-panel {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            border-left: 5px solid #4299e1;
+        }
+        
+        .step-info {
+            font-size: 16px;
+            margin-bottom: 10px;
+            color: #2d3748;
+        }
+        
+        .complexity-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .complexity-card {
+            background: #edf2f7;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .fibonacci-container {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .fib-input {
+            padding: 10px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 16px;
+            width: 100px;
+            text-align: center;
+        }
+        
+        .fib-result {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2d3748;
+        }
+        
+        .fib-comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            width: 100%;
+            max-width: 600px;
+        }
+        
+        .fib-method {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid #e2e8f0;
+        }
+        
+        .search-container {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .search-input {
+            padding: 10px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 16px;
+            width: 100px;
+            text-align: center;
+        }
+        
+        .search-result {
+            font-size: 18px;
+            font-weight: bold;
+            color: #2d3748;
+        }
+        
+        .code-panel {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            border-left: 5px solid #9f7aea;
+        }
+        
+        .code-panel h2 {
+            margin-top: 0;
+            color: #4a5568;
+            text-align: center;
+        }
+        
+        .language-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            justify-content: center;
+        }
+        
+        .tab-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 20px;
+            background: #e2e8f0;
+            color: #4a5568;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .tab-btn:hover {
+            background: #cbd5e0;
+        }
+        
+        .tab-btn.active {
+            background: #9f7aea;
+            color: white;
+        }
+        
+        .code-content {
+            background: #2d3748;
+            border-radius: 10px;
+            padding: 20px;
+            overflow-x: auto;
+        }
+        
+        .code-content pre {
+            margin: 0;
+            color: #e2e8f0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        .code-content code {
+            color: #e2e8f0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 演算法視覺化工具</h1>
+        
+        <div class="algorithm-selector">
+            <button class="algo-btn active" onclick="selectAlgorithm('selection')">選擇排序</button>
+            <button class="algo-btn" onclick="selectAlgorithm('insertion')">插入排序</button>
+            <button class="algo-btn" onclick="selectAlgorithm('bubble')">泡沫排序</button>
+            <button class="algo-btn" onclick="selectAlgorithm('quick')">快速排序</button>
+            <button class="algo-btn" onclick="selectAlgorithm('binary')">二元搜尋</button>
+            <button class="algo-btn" onclick="selectAlgorithm('fibonacci')">動態規劃 (Fibonacci)</button>
+        </div>
+        
+        <div class="controls">
+            <div class="control-group">
+                <button class="control-btn" onclick="generateArray()">產生新陣列</button>
+                <button class="control-btn" onclick="startSort()" id="startBtn">開始排序</button>
+                <button class="control-btn" onclick="pauseSort()" id="pauseBtn" style="display: none;">暫停</button>
+                <button class="control-btn" onclick="resetArray()">重置</button>
+            </div>
+            <div class="control-group">
+                <label>陣列大小:</label>
+                <input type="range" id="arraySize" min="5" max="20" value="10" onchange="generateArray()">
+                <span id="sizeValue">10</span>
+            </div>
+            <div class="control-group">
+                <label>速度:</label>
+                <input type="range" id="speed" min="50" max="1000" value="300">
+                <span>慢 ← → 快</span>
+            </div>
+        </div>
+        
+        <div class="visualization-area">
+            <div class="array-container" id="arrayContainer"></div>
+            
+            <div class="search-container" id="searchContainer">
+                <div class="control-group">
+                    <label>搜尋目標:</label>
+                    <input type="number" class="search-input" id="searchTarget" placeholder="輸入數字">
+                    <button class="control-btn" onclick="startBinarySearch()">開始搜尋</button>
+                </div>
+                <div class="search-result" id="searchResult"></div>
+            </div>
+            
+            <div class="fibonacci-container" id="fibonacciContainer">
+                <div class="control-group">
+                    <label>計算 Fibonacci 數列第</label>
+                    <input type="number" class="fib-input" id="fibInput" value="10" min="1" max="40">
+                    <label>項</label>
+                    <button class="control-btn" onclick="calculateFibonacci()">計算</button>
+                </div>
+                <div class="fib-result" id="fibResult"></div>
+                <div class="fib-comparison">
+                    <div class="fib-method">
+                        <h3>🐌 遞迴方法</h3>
+                        <div id="recursiveResult">時間: - ms<br>呼叫次數: -</div>
+                    </div>
+                    <div class="fib-method">
+                        <h3>⚡ 動態規劃</h3>
+                        <div id="dpResult">時間: - ms<br>呼叫次數: -</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="info-panel">
+            <div class="step-info" id="stepInfo">選擇一個演算法開始視覺化</div>
+            <div class="complexity-info" id="complexityInfo"></div>
+        </div>
+        
+        <div class="code-panel">
+            <h2>📝 程式碼範例</h2>
+            <div class="language-tabs">
+                <button class="tab-btn active" onclick="showLanguage('python')">Python</button>
+                <button class="tab-btn" onclick="showLanguage('c')">C</button>
+                <button class="tab-btn" onclick="showLanguage('java')">Java</button>
+            </div>
+            <div class="code-content" id="codeContent">
+                <pre><code id="codeDisplay"></code></pre>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let array = [];
+        let originalArray = [];
+        let currentAlgorithm = 'selection';
+        let isRunning = false;
+        let isPaused = false;
+        let shouldStop = false;
+        let animationSpeed = 300;
+        let currentLanguage = 'python';
+
+        // 程式碼範例資料庫
+        const codeExamples = {
+            selection: {
+                python: `def selection_sort(arr):
+    """選擇排序法 - Python 實作"""
+    n = len(arr)
+    
+    for i in range(n - 1):
+        # 找到最小值的索引
+        min_idx = i
+        for j in range(i + 1, n):
+            if arr[j] < arr[min_idx]:
+                min_idx = j
+        
+        # 交換元素
+        arr[i], arr[min_idx] = arr[min_idx], arr[i]
+    
+    return arr
+
+# 使用範例
+numbers = [64, 34, 25, 12, 22, 11, 90]
+sorted_numbers = selection_sort(numbers.copy())
+print(f"排序前: {numbers}")
+print(f"排序後: {sorted_numbers}")`,
+                c: `#include <stdio.h>
+
+void selection_sort(int arr[], int n) {
+    /* 選擇排序法 - C 實作 */
+    int i, j, min_idx, temp;
+    
+    for (i = 0; i < n - 1; i++) {
+        // 找到最小值的索引
+        min_idx = i;
+        for (j = i + 1; j < n; j++) {
+            if (arr[j] < arr[min_idx]) {
+                min_idx = j;
+            }
+        }
+        
+        // 交換元素
+        temp = arr[min_idx];
+        arr[min_idx] = arr[i];
+        arr[i] = temp;
+    }
+}
+
+int main() {
+    int arr[] = {64, 34, 25, 12, 22, 11, 90};
+    int n = sizeof(arr) / sizeof(arr[0]);
+    
+    printf("排序前: ");
+    for (int i = 0; i < n; i++) {
+        printf("%d ", arr[i]);
+    }
+    
+    selection_sort(arr, n);
+    
+    printf("\\n排序後: ");
+    for (int i = 0; i < n; i++) {
+        printf("%d ", arr[i]);
+    }
+    
+    return 0;
+}`,
+                java: `public class SelectionSort {
+    /**
+     * 選擇排序法 - Java 實作
+     */
+    public static void selectionSort(int[] arr) {
+        int n = arr.length;
+        
+        for (int i = 0; i < n - 1; i++) {
+            // 找到最小值的索引
+            int minIdx = i;
+            for (int j = i + 1; j < n; j++) {
+                if (arr[j] < arr[minIdx]) {
+                    minIdx = j;
+                }
+            }
+            
+            // 交換元素
+            int temp = arr[minIdx];
+            arr[minIdx] = arr[i];
+            arr[i] = temp;
+        }
+    }
+    
+    public static void main(String[] args) {
+        int[] numbers = {64, 34, 25, 12, 22, 11, 90};
+        
+        System.out.print("排序前: ");
+        for (int num : numbers) {
+            System.out.print(num + " ");
+        }
+        
+        selectionSort(numbers);
+        
+        System.out.print("\\n排序後: ");
+        for (int num : numbers) {
+            System.out.print(num + " ");
+        }
+    }
+}`
+            },
+            insertion: {
+                python: `def insertion_sort(arr):
+    """插入排序法 - Python 實作"""
+    for i in range(1, len(arr)):
+        key = arr[i]
+        j = i - 1
+        
+        # 將大於 key 的元素向右移動
+        while j >= 0 and arr[j] > key:
+            arr[j + 1] = arr[j]
+            j -= 1
+        
+        # 插入 key 到正確位置
+        arr[j + 1] = key
+    
+    return arr
+
+# 使用範例
+numbers = [64, 34, 25, 12, 22, 11, 90]
+sorted_numbers = insertion_sort(numbers.copy())
+print(f"排序前: {numbers}")
+print(f"排序後: {sorted_numbers}")`,
+                c: `#include <stdio.h>
+
+void insertion_sort(int arr[], int n) {
+    /* 插入排序法 - C 實作 */
+    int i, key, j;
+    
+    for (i = 1; i < n; i++) {
+        key = arr[i];
+        j = i - 1;
+        
+        /* 將大於 key 的元素向右移動 */
+        while (j >= 0 && arr[j] > key) {
+            arr[j + 1] = arr[j];
+            j = j - 1;
+        }
+        
+        /* 插入 key 到正確位置 */
+        arr[j + 1] = key;
+    }
+}
+
+int main() {
+    int arr[] = {64, 34, 25, 12, 22, 11, 90};
+    int n = sizeof(arr) / sizeof(arr[0]);
+    
+    printf("排序前: ");
+    for (int i = 0; i < n; i++) {
+        printf("%d ", arr[i]);
+    }
+    
+    insertion_sort(arr, n);
+    
+    printf("\\n排序後: ");
+    for (int i = 0; i < n; i++) {
+        printf("%d ", arr[i]);
+    }
+    
+    return 0;
+}`,
+                java: `public class InsertionSort {
+    /**
+     * 插入排序法 - Java 實作
+     */
+    public static void insertionSort(int[] arr) {
+        for (int i = 1; i < arr.length; i++) {
+            int key = arr[i];
+            int j = i - 1;
+            
+            // 將大於 key 的元素向右移動
+            while (j >= 0 && arr[j] > key) {
+                arr[j + 1] = arr[j];
+                j = j - 1;
+            }
+            
+            // 插入 key 到正確位置
+            arr[j + 1] = key;
+        }
+    }
+    
+    public static void main(String[] args) {
+        int[] numbers = {64, 34, 25, 12, 22, 11, 90};
+        
+        System.out.print("排序前: ");
+        for (int num : numbers) {
+            System.out.print(num + " ");
+        }
+        
+        insertionSort(numbers);
+        
+        System.out.print("\\n排序後: ");
+        for (int num : numbers) {
+            System.out.print(num + " ");
+        }
+    }
+}`
+            },
+            bubble: {
+                python: `def bubble_sort(arr):
+    """泡沫排序法 - Python 實作"""
+    n = len(arr)
+    
+    for i in range(n - 1):
+        swapped = False
+        
+        for j in range(n - i - 1):
+            # 比較相鄰元素
+            if arr[j] > arr[j + 1]:
+                # 交換元素
+                arr[j], arr[j + 1] = arr[j + 1], arr[j]
+                swapped = True
+        
+        # 如果沒有交換發生，陣列已排序
+        if not swapped:
+            break
+    
+    return arr
+
+# 使用範例
+numbers = [64, 34, 25, 12, 22, 11, 90]
+sorted_numbers = bubble_sort(numbers.copy())
+print(f"排序前: {numbers}")
+print(f"排序後: {sorted_numbers}")`,
+                c: `#include <stdio.h>
+#include <stdbool.h>
+
+void bubble_sort(int arr[], int n) {
+    /* 泡沫排序法 - C 實作 */
+    int i, j, temp;
+    bool swapped;
+    
+    for (i = 0; i < n - 1; i++) {
+        swapped = false;
+        
+        for (j = 0; j < n - i - 1; j++) {
+            /* 比較相鄰元素 */
+            if (arr[j] > arr[j + 1]) {
+                /* 交換元素 */
+                temp = arr[j];
+                arr[j] = arr[j + 1];
+                arr[j + 1] = temp;
+                swapped = true;
+            }
+        }
+        
+        /* 如果沒有交換發生，陣列已排序 */
+        if (!swapped) {
+            break;
+        }
+    }
+}
+
+int main() {
+    int arr[] = {64, 34, 25, 12, 22, 11, 90};
+    int n = sizeof(arr) / sizeof(arr[0]);
+    
+    printf("排序前: ");
+    for (int i = 0; i < n; i++) {
+        printf("%d ", arr[i]);
+    }
+    
+    bubble_sort(arr, n);
+    
+    printf("\\n排序後: ");
+    for (int i = 0; i < n; i++) {
+        printf("%d ", arr[i]);
+    }
+    
+    return 0;
+}`,
+                java: `public class BubbleSort {
+    /**
+     * 泡沫排序法 - Java 實作
+     */
+    public static void bubbleSort(int[] arr) {
+        int n = arr.length;
+        
+        for (int i = 0; i < n - 1; i++) {
+            boolean swapped = false;
+            
+            for (int j = 0; j < n - i - 1; j++) {
+                // 比較相鄰元素
+                if (arr[j] > arr[j + 1]) {
+                    // 交換元素
+                    int temp = arr[j];
+                    arr[j] = arr[j + 1];
+                    arr[j + 1] = temp;
+                    swapped = true;
+                }
+            }
+            
+            // 如果沒有交換發生，陣列已排序
+            if (!swapped) {
+                break;
+            }
+        }
+    }
+    
+    public static void main(String[] args) {
+        int[] numbers = {64, 34, 25, 12, 22, 11, 90};
+        
+        System.out.print("排序前: ");
+        for (int num : numbers) {
+            System.out.print(num + " ");
+        }
+        
+        bubbleSort(numbers);
+        
+        System.out.print("\\n排序後: ");
+        for (int num : numbers) {
+            System.out.print(num + " ");
+        }
+    }
+}`
+            },
+            quick: {
+                python: `def quick_sort(arr, low=0, high=None):
+    """快速排序法 - Python 實作"""
+    if high is None:
+        high = len(arr) - 1
+    
+    if low < high:
+        # 分割陣列並取得基準點位置
+        pi = partition(arr, low, high)
+        
+        # 遞迴排序基準點左右兩側
+        quick_sort(arr, low, pi - 1)
+        quick_sort(arr, pi + 1, high)
+    
+    return arr
+
+def partition(arr, low, high):
+    """分割函數"""
+    pivot = arr[high]  # 選擇最後一個元素作為基準點
+    i = low - 1        # 較小元素的索引
+    
+    for j in range(low, high):
+        if arr[j] <= pivot:
+            i += 1
+            arr[i], arr[j] = arr[j], arr[i]
+    
+    arr[i + 1], arr[high] = arr[high], arr[i + 1]
+    return i + 1
+
+# 使用範例
+numbers = [64, 34, 25, 12, 22, 11, 90]
+sorted_numbers = quick_sort(numbers.copy())
+print(f"排序前: {numbers}")
+print(f"排序後: {sorted_numbers}")`,
+                c: `#include <stdio.h>
+
+int partition(int arr[], int low, int high) {
+    /* 分割函數 */
+    int pivot = arr[high];  // 選擇最後一個元素作為基準點
+    int i = (low - 1);      // 較小元素的索引
+    int temp;
+    
+    for (int j = low; j <= high - 1; j++) {
+        if (arr[j] <= pivot) {
+            i++;
+            temp = arr[i];
+            arr[i] = arr[j];
+            arr[j] = temp;
+        }
+    }
+    
+    temp = arr[i + 1];
+    arr[i + 1] = arr[high];
+    arr[high] = temp;
+    
+    return (i + 1);
+}
+
+void quick_sort(int arr[], int low, int high) {
+    /* 快速排序法 - C 實作 */
+    if (low < high) {
+        // 分割陣列並取得基準點位置
+        int pi = partition(arr, low, high);
+        
+        // 遞迴排序基準點左右兩側
+        quick_sort(arr, low, pi - 1);
+        quick_sort(arr, pi + 1, high);
+    }
+}
+
+int main() {
+    int arr[] = {64, 34, 25, 12, 22, 11, 90};
+    int n = sizeof(arr) / sizeof(arr[0]);
+    
+    printf("排序前: ");
+    for (int i = 0; i < n; i++) {
+        printf("%d ", arr[i]);
+    }
+    
+    quick_sort(arr, 0, n - 1);
+    
+    printf("\\n排序後: ");
+    for (int i = 0; i < n; i++) {
+        printf("%d ", arr[i]);
+    }
+    
+    return 0;
+}`,
+                java: `public class QuickSort {
+    /**
+     * 快速排序法 - Java 實作
+     */
+    public static void quickSort(int[] arr, int low, int high) {
+        if (low < high) {
+            // 分割陣列並取得基準點位置
+            int pi = partition(arr, low, high);
+            
+            // 遞迴排序基準點左右兩側
+            quickSort(arr, low, pi - 1);
+            quickSort(arr, pi + 1, high);
+        }
+    }
+    
+    /**
+     * 分割函數
+     */
+    static int partition(int[] arr, int low, int high) {
+        int pivot = arr[high];  // 選擇最後一個元素作為基準點
+        int i = (low - 1);      // 較小元素的索引
+        
+        for (int j = low; j < high; j++) {
+            if (arr[j] <= pivot) {
+                i++;
+                
+                // 交換元素
+                int temp = arr[i];
+                arr[i] = arr[j];
+                arr[j] = temp;
+            }
+        }
+        
+        // 交換基準點到正確位置
+        int temp = arr[i + 1];
+        arr[i + 1] = arr[high];
+        arr[high] = temp;
+        
+        return i + 1;
+    }
+    
+    public static void main(String[] args) {
+        int[] numbers = {64, 34, 25, 12, 22, 11, 90};
+        
+        System.out.print("排序前: ");
+        for (int num : numbers) {
+            System.out.print(num + " ");
+        }
+        
+        quickSort(numbers, 0, numbers.length - 1);
+        
+        System.out.print("\\n排序後: ");
+        for (int num : numbers) {
+            System.out.print(num + " ");
+        }
+    }
+}`
+            },
+            binary: {
+                python: `def binary_search(arr, target):
+    """二元搜尋法 - Python 實作"""
+    left = 0
+    right = len(arr) - 1
+    
+    while left <= right:
+        mid = (left + right) // 2
+        
+        if arr[mid] == target:
+            return mid  # 找到目標，回傳索引
+        elif arr[mid] < target:
+            left = mid + 1  # 搜尋右半部
+        else:
+            right = mid - 1  # 搜尋左半部
+    
+    return -1  # 未找到目標
+
+# 使用範例
+sorted_numbers = [11, 12, 22, 25, 34, 64, 90]
+target = 25
+
+result = binary_search(sorted_numbers, target)
+if result != -1:
+    print(f"找到 {target} 在索引 {result}")
+else:
+    print(f"未找到 {target}")
+
+# 搜尋所有元素
+for num in [22, 50, 90]:
+    idx = binary_search(sorted_numbers, num)
+    print(f"搜尋 {num}: {'找到在索引 ' + str(idx) if idx != -1 else '未找到'}")`,
+                c: `#include <stdio.h>
+
+int binary_search(int arr[], int n, int target) {
+    /* 二元搜尋法 - C 實作 */
+    int left = 0;
+    int right = n - 1;
+    
+    while (left <= right) {
+        int mid = left + (right - left) / 2;
+        
+        if (arr[mid] == target) {
+            return mid;  // 找到目標，回傳索引
+        }
+        else if (arr[mid] < target) {
+            left = mid + 1;  // 搜尋右半部
+        }
+        else {
+            right = mid - 1;  // 搜尋左半部
+        }
+    }
+    
+    return -1;  // 未找到目標
+}
+
+int main() {
+    int arr[] = {11, 12, 22, 25, 34, 64, 90};
+    int n = sizeof(arr) / sizeof(arr[0]);
+    int target = 25;
+    
+    printf("陣列: ");
+    for (int i = 0; i < n; i++) {
+        printf("%d ", arr[i]);
+    }
+    
+    int result = binary_search(arr, n, target);
+    
+    if (result != -1) {
+        printf("\\n找到 %d 在索引 %d\\n", target, result);
+    } else {
+        printf("\\n未找到 %d\\n", target);
+    }
+    
+    return 0;
+}`,
+                java: `public class BinarySearch {
+    /**
+     * 二元搜尋法 - Java 實作
+     */
+    public static int binarySearch(int[] arr, int target) {
+        int left = 0;
+        int right = arr.length - 1;
+        
+        while (left <= right) {
+            int mid = left + (right - left) / 2;
+            
+            if (arr[mid] == target) {
+                return mid;  // 找到目標，回傳索引
+            }
+            else if (arr[mid] < target) {
+                left = mid + 1;  // 搜尋右半部
+            }
+            else {
+                right = mid - 1;  // 搜尋左半部
+            }
+        }
+        
+        return -1;  // 未找到目標
+    }
+    
+    public static void main(String[] args) {
+        int[] sortedNumbers = {11, 12, 22, 25, 34, 64, 90};
+        int target = 25;
+        
+        System.out.print("陣列: ");
+        for (int num : sortedNumbers) {
+            System.out.print(num + " ");
+        }
+        
+        int result = binarySearch(sortedNumbers, target);
+        
+        if (result != -1) {
+            System.out.println("\\n找到 " + target + " 在索引 " + result);
+        } else {
+            System.out.println("\\n未找到 " + target);
+        }
+        
+        // 搜尋多個目標
+        int[] targets = {22, 50, 90};
+        for (int t : targets) {
+            int idx = binarySearch(sortedNumbers, t);
+            System.out.println("搜尋 " + t + ": " + 
+                (idx != -1 ? "找到在索引 " + idx : "未找到"));
+        }
+    }
+}`
+            },
+            fibonacci: {
+                python: `def fibonacci_recursive(n):
+    """遞迴版本 Fibonacci - Python 實作"""
+    if n <= 1:
+        return n
+    return fibonacci_recursive(n - 1) + fibonacci_recursive(n - 2)
+
+def fibonacci_dp(n):
+    """動態規劃版本 Fibonacci - Python 實作"""
+    if n <= 1:
+        return n
+    
+    # 建立 DP 表格
+    dp = [0] * (n + 1)
+    dp[1] = 1
+    
+    for i in range(2, n + 1):
+        dp[i] = dp[i - 1] + dp[i - 2]
+    
+    return dp[n]
+
+def fibonacci_optimized(n):
+    """空間優化版本 - 只使用兩個變數"""
+    if n <= 1:
+        return n
+    
+    a, b = 0, 1
+    for i in range(2, n + 1):
+        a, b = b, a + b
+    
+    return b
+
+# 使用範例
+n = 10
+print(f"Fibonacci({n}):")
+print(f"遞迴版本: {fibonacci_recursive(n)}")
+print(f"動態規劃: {fibonacci_dp(n)}")
+print(f"優化版本: {fibonacci_optimized(n)}")
+
+# 比較效能
+import time
+n = 35
+start = time.time()
+result1 = fibonacci_recursive(n)
+time1 = time.time() - start
+
+start = time.time()
+result2 = fibonacci_dp(n)
+time2 = time.time() - start
+
+print(f"\\n效能比較 (n={n}):")
+print(f"遞迴: {time1:.4f}秒")
+print(f"動態規劃: {time2:.4f}秒")`,
+                c: `#include <stdio.h>
+#include <time.h>
+
+long long fibonacci_recursive(int n) {
+    /* 遞迴版本 Fibonacci - C 實作 */
+    if (n <= 1) {
+        return n;
+    }
+    return fibonacci_recursive(n - 1) + fibonacci_recursive(n - 2);
+}
+
+long long fibonacci_dp(int n) {
+    /* 動態規劃版本 Fibonacci - C 實作 */
+    if (n <= 1) {
+        return n;
+    }
+    
+    long long dp[n + 1];
+    dp[0] = 0;
+    dp[1] = 1;
+    
+    for (int i = 2; i <= n; i++) {
+        dp[i] = dp[i - 1] + dp[i - 2];
+    }
+    
+    return dp[n];
+}
+
+long long fibonacci_optimized(int n) {
+    /* 空間優化版本 - 只使用兩個變數 */
+    if (n <= 1) {
+        return n;
+    }
+    
+    long long a = 0, b = 1, temp;
+    for (int i = 2; i <= n; i++) {
+        temp = a + b;
+        a = b;
+        b = temp;
+    }
+    
+    return b;
+}
+
+int main() {
+    int n = 10;
+    
+    printf("Fibonacci(%d):\\n", n);
+    printf("遞迴版本: %lld\\n", fibonacci_recursive(n));
+    printf("動態規劃: %lld\\n", fibonacci_dp(n));
+    printf("優化版本: %lld\\n", fibonacci_optimized(n));
+    
+    // 效能比較
+    n = 40;
+    clock_t start, end;
+    
+    start = clock();
+    long long result1 = fibonacci_recursive(n);
+    end = clock();
+    double time1 = ((double)(end - start)) / CLOCKS_PER_SEC;
+    
+    start = clock();
+    long long result2 = fibonacci_dp(n);
+    end = clock();
+    double time2 = ((double)(end - start)) / CLOCKS_PER_SEC;
+    
+    printf("\\n效能比較 (n=%d):\\n", n);
+    printf("遞迴: %.4f秒\\n", time1);
+    printf("動態規劃: %.4f秒\\n", time2);
+    
+    return 0;
+}`,
+                java: `public class Fibonacci {
+    /**
+     * 遞迴版本 Fibonacci - Java 實作
+     */
+    public static long fibonacciRecursive(int n) {
+        if (n <= 1) {
+            return n;
+        }
+        return fibonacciRecursive(n - 1) + fibonacciRecursive(n - 2);
+    }
+    
+    /**
+     * 動態規劃版本 Fibonacci - Java 實作
+     */
+    public static long fibonacciDP(int n) {
+        if (n <= 1) {
+            return n;
+        }
+        
+        long[] dp = new long[n + 1];
+        dp[0] = 0;
+        dp[1] = 1;
+        
+        for (int i = 2; i <= n; i++) {
+            dp[i] = dp[i - 1] + dp[i - 2];
+        }
+        
+        return dp[n];
+    }
+    
+    /**
+     * 空間優化版本 - 只使用兩個變數
+     */
+    public static long fibonacciOptimized(int n) {
+        if (n <= 1) {
+            return n;
+        }
+        
+        long a = 0, b = 1;
+        for (int i = 2; i <= n; i++) {
+            long temp = a + b;
+            a = b;
+            b = temp;
+        }
+        
+        return b;
+    }
+    
+    public static void main(String[] args) {
+        int n = 10;
+        
+        System.out.println("Fibonacci(" + n + "):");
+        System.out.println("遞迴版本: " + fibonacciRecursive(n));
+        System.out.println("動態規劃: " + fibonacciDP(n));
+        System.out.println("優化版本: " + fibonacciOptimized(n));
+        
+        // 效能比較
+        n = 40;
+        long start, end;
+        
+        start = System.nanoTime();
+        long result1 = fibonacciRecursive(n);
+        end = System.nanoTime();
+        double time1 = (end - start) / 1_000_000_000.0;
+        
+        start = System.nanoTime();
+        long result2 = fibonacciDP(n);
+        end = System.nanoTime();
+        double time2 = (end - start) / 1_000_000_000.0;
+        
+        System.out.println("\\n效能比較 (n=" + n + "):");
+        System.out.printf("遞迴: %.4f秒%n", time1);
+        System.out.printf("動態規劃: %.4f秒%n", time2);
+    }
+}`
+            }
+        };
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            generateArray();
+            updateComplexityInfo();
+            updateCodeDisplay();
+        });
+
+        function selectAlgorithm(algo) {
+            // 停止當前運行的排序
+            stopSort();
+            
+            currentAlgorithm = algo;
+            
+            // 更新按鈕狀態
+            document.querySelectorAll('.algo-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // 顯示/隱藏相應的容器
+            document.getElementById('searchContainer').style.display = algo === 'binary' ? 'flex' : 'none';
+            document.getElementById('fibonacciContainer').style.display = algo === 'fibonacci' ? 'flex' : 'none';
+            document.getElementById('arrayContainer').style.display = algo === 'fibonacci' ? 'none' : 'flex';
+            
+            // 更新控制按鈕
+            const startBtn = document.getElementById('startBtn');
+            const pauseBtn = document.getElementById('pauseBtn');
+            
+            if (algo === 'binary') {
+                startBtn.textContent = '準備搜尋';
+                startBtn.onclick = () => generateSortedArray();
+                pauseBtn.style.display = 'none';
+            } else if (algo === 'fibonacci') {
+                startBtn.style.display = 'none';
+                pauseBtn.style.display = 'none';
+            } else {
+                startBtn.textContent = '開始排序';
+                startBtn.onclick = startSort;
+                startBtn.style.display = 'inline-block';
+                pauseBtn.style.display = 'none';
+            }
+            
+            resetArray();
+            updateComplexityInfo();
+            updateCodeDisplay();
+        }
+
+        function showLanguage(language) {
+            currentLanguage = language;
+            
+            // 更新按鈕狀態
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            updateCodeDisplay();
+        }
+
+        function updateCodeDisplay() {
+            const code = codeExamples[currentAlgorithm]?.[currentLanguage] || '// 程式碼載入中...';
+            document.getElementById('codeDisplay').textContent = code;
+        }
+
+        function generateArray() {
+            const size = parseInt(document.getElementById('arraySize').value);
+            document.getElementById('sizeValue').textContent = size;
+            
+            array = [];
+            for (let i = 0; i < size; i++) {
+                array.push(Math.floor(Math.random() * 99) + 1);
+            }
+            originalArray = [...array];
+            renderArray();
+            updateStepInfo('已產生新的隨機陣列');
+        }
+
+        function generateSortedArray() {
+            generateArray();
+            array.sort((a, b) => a - b);
+            originalArray = [...array];
+            renderArray();
+            updateStepInfo('已產生排序好的陣列，可以開始二元搜尋');
+        }
+
+        function resetArray() {
+            // 停止當前運行的排序
+            stopSort();
+            
+            if (originalArray.length > 0) {
+                array = [...originalArray];
+                renderArray();
+                updateStepInfo('陣列已重置');
+            }
+        }
+
+        function renderArray() {
+            const container = document.getElementById('arrayContainer');
+            container.innerHTML = '';
+            
+            array.forEach((value, index) => {
+                const element = document.createElement('div');
+                element.className = 'array-element';
+                element.textContent = value;
+                element.id = `element-${index}`;
+                container.appendChild(element);
+            });
+        }
+
+        function updateStepInfo(message) {
+            document.getElementById('stepInfo').textContent = message;
+        }
+
+        function updateComplexityInfo() {
+            const complexities = {
+                selection: {
+                    name: '選擇排序法',
+                    time: 'O(n²)',
+                    space: 'O(1)',
+                    description: '每次找到最小值並放到正確位置'
+                },
+                insertion: {
+                    name: '插入排序法',
+                    time: 'O(n²)',
+                    space: 'O(1)',
+                    description: '將每個元素插入到已排序部分的正確位置'
+                },
+                bubble: {
+                    name: '泡沫排序法',
+                    time: 'O(n²)',
+                    space: 'O(1)',
+                    description: '重複比較相鄰元素並交換'
+                },
+                quick: {
+                    name: '快速排序法',
+                    time: 'O(n log n)',
+                    space: 'O(log n)',
+                    description: '選擇基準點並分割陣列遞迴排序'
+                },
+                binary: {
+                    name: '二元搜尋法',
+                    time: 'O(log n)',
+                    space: 'O(1)',
+                    description: '在已排序陣列中快速找到目標值'
+                },
+                fibonacci: {
+                    name: '動態規劃 (Fibonacci)',
+                    time: 'O(n) vs O(2ⁿ)',
+                    space: 'O(n) vs O(n)',
+                    description: '使用記憶化避免重複計算'
+                }
+            };
+
+            const info = complexities[currentAlgorithm];
+            document.getElementById('complexityInfo').innerHTML = `
+                <div class="complexity-card">
+                    <h3>${info.name}</h3>
+                    <p><strong>時間複雜度:</strong> ${info.time}</p>
+                    <p><strong>空間複雜度:</strong> ${info.space}</p>
+                    <p>${info.description}</p>
+                </div>
+            `;
+        }
+
+        async function startSort() {
+            if (isRunning && !isPaused) return;
+            
+            if (isPaused) {
+                // 繼續排序
+                isPaused = false;
+                document.getElementById('startBtn').textContent = '開始排序';
+                document.getElementById('pauseBtn').textContent = '暫停';
+                updateStepInfo('繼續排序...');
+                return;
+            }
+            
+            isRunning = true;
+            isPaused = false;
+            shouldStop = false;
+            animationSpeed = 1100 - parseInt(document.getElementById('speed').value);
+            
+            // 更新按鈕狀態
+            document.getElementById('startBtn').style.display = 'none';
+            document.getElementById('pauseBtn').style.display = 'inline-block';
+            
+            try {
+                switch (currentAlgorithm) {
+                    case 'selection':
+                        await selectionSort();
+                        break;
+                    case 'insertion':
+                        await insertionSort();
+                        break;
+                    case 'bubble':
+                        await bubbleSort();
+                        break;
+                    case 'quick':
+                        await quickSort(0, array.length - 1);
+                        break;
+                }
+                
+                if (!shouldStop) {
+                    // 標記所有元素為已排序
+                    for (let i = 0; i < array.length; i++) {
+                        const element = document.getElementById(`element-${i}`);
+                        if (element) element.classList.add('sorted');
+                    }
+                    updateStepInfo('排序完成！');
+                }
+            } catch (error) {
+                if (error.message !== 'STOPPED') {
+                    console.error('排序過程中發生錯誤:', error);
+                }
+            }
+            
+            // 重置按鈕狀態
+            isRunning = false;
+            isPaused = false;
+            document.getElementById('startBtn').style.display = 'inline-block';
+            document.getElementById('startBtn').textContent = '開始排序';
+            document.getElementById('pauseBtn').style.display = 'none';
+        }
+
+        function pauseSort() {
+            if (isRunning && !isPaused) {
+                isPaused = true;
+                document.getElementById('startBtn').style.display = 'inline-block';
+                document.getElementById('startBtn').textContent = '繼續';
+                document.getElementById('pauseBtn').textContent = '已暫停';
+                updateStepInfo('排序已暫停，點擊「繼續」按鈕恢復');
+            }
+        }
+
+        function stopSort() {
+            if (isRunning) {
+                shouldStop = true;
+                isPaused = false;
+                isRunning = false;
+                
+                // 重置按鈕狀態
+                document.getElementById('startBtn').style.display = 'inline-block';
+                document.getElementById('startBtn').textContent = '開始排序';
+                document.getElementById('pauseBtn').style.display = 'none';
+                
+                // 清除所有動畫狀態
+                document.querySelectorAll('.array-element').forEach(element => {
+                    element.classList.remove('comparing', 'swapping', 'sorted', 'pivot');
+                });
+                
+                updateStepInfo('排序已停止');
+            }
+        }
+
+        async function selectionSort() {
+            for (let i = 0; i < array.length - 1; i++) {
+                if (shouldStop) throw new Error('STOPPED');
+                
+                let minIndex = i;
+                const element_i = document.getElementById(`element-${i}`);
+                if (element_i) element_i.classList.add('comparing');
+                
+                updateStepInfo(`第 ${i + 1} 輪：尋找位置 ${i} 到 ${array.length - 1} 中的最小值`);
+                
+                for (let j = i + 1; j < array.length; j++) {
+                    if (shouldStop) throw new Error('STOPPED');
+                    
+                    const element_j = document.getElementById(`element-${j}`);
+                    if (element_j) element_j.classList.add('comparing');
+                    await sleep(animationSpeed);
+                    
+                    if (array[j] < array[minIndex]) {
+                        if (minIndex !== i) {
+                            const element_min = document.getElementById(`element-${minIndex}`);
+                            if (element_min) element_min.classList.remove('comparing');
+                        }
+                        minIndex = j;
+                        updateStepInfo(`找到更小的值 ${array[j]} 在位置 ${j}`);
+                    } else {
+                        if (element_j) element_j.classList.remove('comparing');
+                    }
+                }
+                
+                if (minIndex !== i) {
+                    const element_i_swap = document.getElementById(`element-${i}`);
+                    const element_min_swap = document.getElementById(`element-${minIndex}`);
+                    if (element_i_swap) element_i_swap.classList.add('swapping');
+                    if (element_min_swap) element_min_swap.classList.add('swapping');
+                    
+                    updateStepInfo(`交換位置 ${i} 和 ${minIndex} 的元素`);
+                    
+                    // 播放交換動畫
+                    await animateSwap(i, minIndex);
+                    
+                    [array[i], array[minIndex]] = [array[minIndex], array[i]];
+                    renderArray();
+                    
+                    updateStepInfo(`交換完成：${array[i]} 和 ${array[minIndex]}`);
+                }
+                
+                const final_element = document.getElementById(`element-${i}`);
+                if (final_element) {
+                    final_element.classList.remove('comparing', 'swapping');
+                    final_element.classList.add('sorted');
+                }
+            }
+        }
+
+        async function insertionSort() {
+            const first_element = document.getElementById(`element-0`);
+            if (first_element) first_element.classList.add('sorted');
+            
+            for (let i = 1; i < array.length; i++) {
+                if (shouldStop) throw new Error('STOPPED');
+                
+                let key = array[i];
+                let j = i - 1;
+                
+                const element_i = document.getElementById(`element-${i}`);
+                if (element_i) element_i.classList.add('comparing');
+                updateStepInfo(`插入 ${key} 到已排序部分`);
+                
+                while (j >= 0 && array[j] > key) {
+                    if (shouldStop) throw new Error('STOPPED');
+                    
+                    const element_j = document.getElementById(`element-${j}`);
+                    const element_j1 = document.getElementById(`element-${j + 1}`);
+                    if (element_j) element_j.classList.add('swapping');
+                    if (element_j1) element_j1.classList.add('swapping');
+                    
+                    updateStepInfo(`移動 ${array[j]} 向右一位`);
+                    
+                    // 播放移動動畫
+                    await animateInsert(j, j + 1);
+                    
+                    array[j + 1] = array[j];
+                    renderArray();
+                    
+                    const element_j_after = document.getElementById(`element-${j}`);
+                    const element_j1_after = document.getElementById(`element-${j + 1}`);
+                    if (element_j_after) element_j_after.classList.remove('swapping');
+                    if (element_j1_after) element_j1_after.classList.remove('swapping');
+                    j--;
+                }
+                
+                array[j + 1] = key;
+                renderArray();
+                
+                for (let k = 0; k <= i; k++) {
+                    const element_k = document.getElementById(`element-${k}`);
+                    if (element_k) element_k.classList.add('sorted');
+                }
+                
+                updateStepInfo(`${key} 已插入到正確位置`);
+                await sleep(animationSpeed);
+            }
+        }
+
+        async function bubbleSort() {
+            for (let i = 0; i < array.length - 1; i++) {
+                if (shouldStop) throw new Error('STOPPED');
+                
+                let swapped = false;
+                updateStepInfo(`第 ${i + 1} 輪泡沫排序`);
+                
+                for (let j = 0; j < array.length - i - 1; j++) {
+                    if (shouldStop) throw new Error('STOPPED');
+                    
+                    const element_j = document.getElementById(`element-${j}`);
+                    const element_j1 = document.getElementById(`element-${j + 1}`);
+                    if (element_j) element_j.classList.add('comparing');
+                    if (element_j1) element_j1.classList.add('comparing');
+                    
+                    await sleep(animationSpeed);
+                    
+                    if (array[j] > array[j + 1]) {
+                        if (element_j) element_j.classList.add('swapping');
+                        if (element_j1) element_j1.classList.add('swapping');
+                        
+                        updateStepInfo(`交換 ${array[j]} 和 ${array[j + 1]}`);
+                        
+                        // 播放交換動畫
+                        await animateSwap(j, j + 1);
+                        
+                        [array[j], array[j + 1]] = [array[j + 1], array[j]];
+                        swapped = true;
+                        
+                        renderArray();
+                        updateStepInfo(`交換完成：${array[j]} 和 ${array[j + 1]}`);
+                    }
+                    
+                    const element_j_after = document.getElementById(`element-${j}`);
+                    const element_j1_after = document.getElementById(`element-${j + 1}`);
+                    if (element_j_after) element_j_after.classList.remove('comparing', 'swapping');
+                    if (element_j1_after) element_j1_after.classList.remove('comparing', 'swapping');
+                }
+                
+                const sorted_element = document.getElementById(`element-${array.length - 1 - i}`);
+                if (sorted_element) sorted_element.classList.add('sorted');
+                
+                if (!swapped) {
+                    updateStepInfo('沒有發生交換，排序提前完成！');
+                    break;
+                }
+            }
+        }
+
+        async function quickSort(low, high) {
+            if (shouldStop) throw new Error('STOPPED');
+            if (low < high) {
+                let pi = await partition(low, high);
+                await quickSort(low, pi - 1);
+                await quickSort(pi + 1, high);
+            }
+        }
+
+        async function partition(low, high) {
+            if (shouldStop) throw new Error('STOPPED');
+            
+            let pivot = array[high];
+            const pivot_element = document.getElementById(`element-${high}`);
+            if (pivot_element) pivot_element.classList.add('pivot');
+            updateStepInfo(`選擇 ${pivot} 作為基準點`);
+            
+            let i = low - 1;
+            
+            for (let j = low; j < high; j++) {
+                if (shouldStop) throw new Error('STOPPED');
+                
+                const element_j = document.getElementById(`element-${j}`);
+                if (element_j) element_j.classList.add('comparing');
+                await sleep(animationSpeed);
+                
+                if (array[j] < pivot) {
+                    i++;
+                    if (i !== j) {
+                        const element_i = document.getElementById(`element-${i}`);
+                        const element_j_swap = document.getElementById(`element-${j}`);
+                        if (element_i) element_i.classList.add('swapping');
+                        if (element_j_swap) element_j_swap.classList.add('swapping');
+                        
+                        updateStepInfo(`交換 ${array[i]} 和 ${array[j]}`);
+                        
+                        // 播放交換動畫
+                        await animateSwap(i, j);
+                        
+                        [array[i], array[j]] = [array[j], array[i]];
+                        renderArray();
+                        
+                        const element_i_after = document.getElementById(`element-${i}`);
+                        const element_j_after = document.getElementById(`element-${j}`);
+                        if (element_i_after) element_i_after.classList.remove('swapping');
+                        if (element_j_after) element_j_after.classList.remove('swapping');
+                    }
+                    updateStepInfo(`${array[i]} < ${pivot}，移到左側`);
+                }
+                
+                const element_j_final = document.getElementById(`element-${j}`);
+                if (element_j_final) element_j_final.classList.remove('comparing');
+            }
+            
+            const element_i1 = document.getElementById(`element-${i + 1}`);
+            const element_high = document.getElementById(`element-${high}`);
+            if (element_i1) element_i1.classList.add('swapping');
+            if (element_high) element_high.classList.add('swapping');
+            
+            updateStepInfo(`將基準點 ${pivot} 移到正確位置`);
+            
+            // 播放基準點交換動畫
+            await animateSwap(i + 1, high);
+            
+            [array[i + 1], array[high]] = [array[high], array[i + 1]];
+            renderArray();
+            
+            const element_i1_final = document.getElementById(`element-${i + 1}`);
+            const element_high_final = document.getElementById(`element-${high}`);
+            if (element_i1_final) {
+                element_i1_final.classList.remove('swapping', 'pivot');
+                element_i1_final.classList.add('sorted');
+            }
+            if (element_high_final) element_high_final.classList.remove('swapping');
+            
+            updateStepInfo(`基準點 ${pivot} 已放到正確位置`);
+            return i + 1;
+        }
+
+        async function startBinarySearch() {
+            const target = parseInt(document.getElementById('searchTarget').value);
+            if (isNaN(target)) {
+                updateStepInfo('請輸入有效的數字');
+                return;
+            }
+            
+            updateStepInfo(`開始搜尋 ${target}`);
+            const result = await binarySearch(target);
+            
+            if (result !== -1) {
+                document.getElementById('searchResult').textContent = `找到了！${target} 在位置 ${result}`;
+                document.getElementById(`element-${result}`).classList.add('sorted');
+            } else {
+                document.getElementById('searchResult').textContent = `沒有找到 ${target}`;
+            }
+        }
+
+        async function binarySearch(target) {
+            let left = 0;
+            let right = array.length - 1;
+            
+            while (left <= right) {
+                if (shouldStop) throw new Error('STOPPED');
+                
+                let mid = Math.floor((left + right) / 2);
+                
+                // 清除之前的標記
+                document.querySelectorAll('.array-element').forEach(el => {
+                    el.classList.remove('comparing', 'swapping');
+                });
+                
+                // 標記搜尋範圍
+                for (let i = left; i <= right; i++) {
+                    const element = document.getElementById(`element-${i}`);
+                    if (element) element.classList.add('comparing');
+                }
+                const mid_element = document.getElementById(`element-${mid}`);
+                if (mid_element) mid_element.classList.add('swapping');
+                
+                updateStepInfo(`搜尋範圍 [${left}, ${right}]，檢查中間位置 ${mid}：${array[mid]}`);
+                await sleep(animationSpeed * 2);
+                
+                if (array[mid] === target) {
+                    updateStepInfo(`找到目標值 ${target}！`);
+                    return mid;
+                } else if (array[mid] < target) {
+                    updateStepInfo(`${array[mid]} < ${target}，搜尋右半部`);
+                    left = mid + 1;
+                } else {
+                    updateStepInfo(`${array[mid]} > ${target}，搜尋左半部`);
+                    right = mid - 1;
+                }
+            }
+            
+            updateStepInfo(`搜尋完畢，未找到 ${target}`);
+            return -1;
+        }
+
+        function calculateFibonacci() {
+            const n = parseInt(document.getElementById('fibInput').value);
+            if (isNaN(n) || n < 1) {
+                updateStepInfo('請輸入有效的正整數');
+                return;
+            }
+            
+            // 遞迴方法
+            let recursiveCalls = 0;
+            const startRecursive = performance.now();
+            
+            function fibRecursive(num) {
+                recursiveCalls++;
+                if (num <= 1) return num;
+                return fibRecursive(num - 1) + fibRecursive(num - 2);
+            }
+            
+            const recursiveResult = fibRecursive(n);
+            const recursiveTime = performance.now() - startRecursive;
+            
+            // 動態規劃方法
+            let dpCalls = 0;
+            const startDP = performance.now();
+            
+            function fibDP(num) {
+                const dp = [0, 1];
+                for (let i = 2; i <= num; i++) {
+                    dpCalls++;
+                    dp[i] = dp[i - 1] + dp[i - 2];
+                }
+                return dp[num];
+            }
+            
+            const dpResult = fibDP(n);
+            const dpTime = performance.now() - startDP;
+            
+            // 顯示結果
+            document.getElementById('fibResult').textContent = `Fibonacci(${n}) = ${dpResult}`;
+            document.getElementById('recursiveResult').innerHTML = 
+                `時間: ${recursiveTime.toFixed(2)} ms<br>呼叫次數: ${recursiveCalls}`;
+            document.getElementById('dpResult').innerHTML = 
+                `時間: ${dpTime.toFixed(2)} ms<br>計算次數: ${dpCalls}`;
+            
+            updateStepInfo(`動態規劃比遞迴快了 ${(recursiveTime / dpTime).toFixed(1)} 倍！`);
+        }
+
+        async function animateSwap(index1, index2) {
+            const element1 = document.getElementById(`element-${index1}`);
+            const element2 = document.getElementById(`element-${index2}`);
+            
+            if (!element1 || !element2) return;
+            
+            // 添加交換動畫
+            if (index1 < index2) {
+                element1.classList.add('slide-right');
+                element2.classList.add('slide-left');
+            } else {
+                element1.classList.add('slide-left');
+                element2.classList.add('slide-right');
+            }
+            
+            // 等待動畫完成
+            await sleep(800);
+            
+            // 清除動畫類別
+            element1.classList.remove('slide-left', 'slide-right');
+            element2.classList.remove('slide-left', 'slide-right');
+        }
+        
+        async function animateInsert(fromIndex, toIndex) {
+            const element = document.getElementById(`element-${fromIndex}`);
+            if (!element) return;
+            
+            // 添加插入動畫
+            if (fromIndex > toIndex) {
+                element.classList.add('moving-up');
+            } else {
+                element.classList.add('moving-down');
+            }
+            
+            // 等待動畫完成
+            await sleep(600);
+            
+            // 清除動畫類別
+            element.classList.remove('moving-up', 'moving-down');
+        }
+
+        async function sleep(ms) {
+            return new Promise((resolve, reject) => {
+                const checkPause = () => {
+                    if (shouldStop) {
+                        reject(new Error('STOPPED'));
+                        return;
+                    }
+                    if (isPaused) {
+                        setTimeout(checkPause, 100);
+                        return;
+                    }
+                    setTimeout(resolve, ms);
+                };
+                checkPause();
+            });
+        }
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9934eb6cc794f234',t:'MTc2MTI2MTE1MC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
