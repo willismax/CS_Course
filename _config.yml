@@ -1,6 +1,30 @@
-title: "CS Course"
-description: "A collection of computer science tutorials and articles"
+title: "CS Course - 計算機科學教學平台"
+description: "結合理論與實作的計算機科學教學平台，提供互動式視覺化工具和深入淺出的教學內容"
+author: "willismax"
 theme: "minima"
 include:
   - "*.tsx"
   - "*.ipynb"
+  - "*.html"
+
+# 網站設定
+lang: zh-TW
+timezone: Asia/Taipei
+
+# SEO 設定
+plugins:
+  - jekyll-seo-tag
+  - jekyll-sitemap
+
+# 社交連結
+github_username: willismax
+
+# 導航選單
+header_pages:
+  - index.md
+  - Git_Tutorial.md
+  - Docker_Tutorial.md
+  - SQL_Tutorial.md
+
+# 顯示摘要
+show_excerpts: true
