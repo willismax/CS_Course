@@ -25,6 +25,7 @@
 | [排序演算法視覺化](https://willismax.github.io/CS_Course/Sorting_algorithm.html) | 演算法 | 6種演算法、動畫展示、多語言範例 |
 | [CPU 排程演算法](https://willismax.github.io/CS_Course/cpu_Scheduling.html) | 作業系統 | FCFS、SJF、RR、Priority 互動學習 |
 | [程序控制表 PCB](https://willismax.github.io/CS_Course/cpu_pcb.html) | 作業系統 | 動態展示程序狀態轉換 |
+| [OSI 網路模型](https://willismax.github.io/CS_Course/osi.html) | 網路概論 | OSI 七層與 TCP/IP 四層模型互動學習 |
 | [Python Set 教學](https://willismax.github.io/CS_Course/python-set.html) | 程式語言 | 集合操作互動練習 |
 | [XSS 安全演示](https://willismax.github.io/CS_Course/xss-security-demo.html) | 資訊安全 | 跨站腳本攻擊實例 |
 
@@ -35,6 +36,9 @@
 ### 🖥️ 作業系統
 - CPU 排程演算法互動教學
 - 程序控制表 (PCB) 互動展示
+
+### 🌐 網路概論
+- OSI 與 TCP/IP 網路模型互動學習平台
 
 ### 🔐 資訊安全
 - Information Security Course
@@ -198,8 +202,8 @@ bundle exec jekyll serve
 
 ## 📊 專案統計
 
-- 📚 **12+** 個教學主題
-- 🎮 **6+** 個互動式工具
+- 📚 **13+** 個教學主題
+- 🎮 **7+** 個互動式工具
 - 💻 **3** 種程式語言範例
 - 🌟 持續更新中...
 

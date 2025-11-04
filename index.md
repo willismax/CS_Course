@@ -18,6 +18,9 @@
 - [CPU 排程演算法互動教學](cpu_Scheduling.html) - 視覺化學習 FCFS、SJF、RR、Priority 等排程演算法
 - [程序控制表 (PCB) 互動展示](cpu_pcb.html) - 探索 CPU 程序與程序控制表的動態運作機制
 
+### 🌐 網路概論 (Computer Networks)
+- [OSI 與 TCP/IP 網路模型互動學習平台](osi.html) - 深入理解網路七層架構與四層模型的差異與應用
+
 ### 🔐 資訊安全 (Information Security)
 - [Information Security Course](Information_Security_Course.md)
 - [XSS Security Demo](xss-security-demo.html) - 跨站腳本攻擊示範
@@ -79,6 +82,7 @@
 | [排序演算法視覺化](Sorting_algorithm.html) | 演算法 | 6種演算法、3種語言範例、動畫展示 |
 | [CPU 排程演算法](cpu_Scheduling.html) | 作業系統 | FCFS、SJF、RR、Priority 互動學習 |
 | [程序控制表 (PCB)](cpu_pcb.html) | 作業系統 | 動態展示程序狀態轉換 |
+| [OSI 網路模型](osi.html) | 網路概論 | OSI 七層與 TCP/IP 四層模型互動學習 |
 | [Python Set 教學](python-set.html) | 程式語言 | 集合操作互動練習 |
 | [XSS 安全演示](xss-security-demo.html) | 資訊安全 | 跨站腳本攻擊實例 |
 

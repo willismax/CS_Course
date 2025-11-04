@@ -1,0 +1,1288 @@
+<!doctype html>
+<html lang="zh-TW">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OSI 與 TCP/IP 網路模型互動學習平台</title>
+  <style>
+        body {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Microsoft JhengHei', 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100%;
+            line-height: 1.6;
+        }
+
+        .learning-platform {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+            overflow: hidden;
+            min-height: 100%;
+        }
+
+        /* Header Styles */
+        .platform-header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .platform-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: headerGlow 6s ease-in-out infinite;
+        }
+
+        @keyframes headerGlow {
+            0%, 100% { transform: rotate(0deg); }
+            50% { transform: rotate(180deg); }
+        }
+
+        .platform-title {
+            font-size: 2.8rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .welcome-message {
+            font-size: 1.3rem;
+            opacity: 0.9;
+            position: relative;
+            z-index: 2;
+        }
+
+        .progress-bar-container {
+            background: rgba(255,255,255,0.2);
+            border-radius: 10px;
+            height: 8px;
+            margin-top: 20px;
+            overflow: hidden;
+            position: relative;
+            z-index: 2;
+        }
+
+        .progress-bar {
+            background: linear-gradient(90deg, #4CAF50, #8BC34A);
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.8s ease;
+            width: 0%;
+        }
+
+        .progress-text {
+            text-align: center;
+            margin-top: 10px;
+            font-size: 0.9rem;
+            opacity: 0.8;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Navigation Tabs */
+        .nav-tabs {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 3px solid #e9ecef;
+            overflow-x: auto;
+        }
+
+        .nav-tab {
+            padding: 15px 25px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #6c757d;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            position: relative;
+        }
+
+        .nav-tab:hover {
+            background: #e9ecef;
+            color: #495057;
+        }
+
+        .nav-tab.active {
+            color: #2c3e50;
+            background: white;
+        }
+
+        .nav-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -3px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #3498db, #2980b9);
+        }
+
+        /* Content Area */
+        .content-area {
+            padding: 30px;
+            min-height: 600px;
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Learning Models Section */
+        .models-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .model-card {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .model-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .model-title {
+            font-size: 1.6rem;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 20px;
+            color: #2c3e50;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .model-icon {
+            font-size: 1.8rem;
+        }
+
+        .layer-item {
+            background: white;
+            margin: 10px 0;
+            padding: 18px;
+            border-radius: 12px;
+            border-left: 5px solid #3498db;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .layer-item:hover {
+            transform: translateX(8px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+        }
+
+        .layer-item.active {
+            background: #e3f2fd;
+            border-left-color: #2196f3;
+            transform: scale(1.02);
+        }
+
+        .layer-number {
+            font-weight: bold;
+            color: #2c3e50;
+            font-size: 0.9rem;
+            display: inline-block;
+            background: #ecf0f1;
+            padding: 4px 8px;
+            border-radius: 15px;
+            margin-right: 10px;
+        }
+
+        .layer-name {
+            font-weight: bold;
+            color: #34495e;
+            margin: 8px 0 5px;
+            font-size: 1.1rem;
+        }
+
+        .layer-description {
+            font-size: 0.9rem;
+            color: #666;
+            line-height: 1.5;
+        }
+
+        .tcp-layer {
+            border-left-color: #e74c3c;
+        }
+
+        .tcp-layer.active {
+            background: #ffebee;
+            border-left-color: #f44336;
+        }
+
+        /* Interactive Demo Section */
+        .demo-section {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 15px;
+            padding: 30px;
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        .demo-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .demo-controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        .demo-button {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+        }
+
+        .demo-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+        }
+
+        .demo-button.secondary {
+            background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);
+            box-shadow: 0 4px 15px rgba(149, 165, 166, 0.3);
+        }
+
+        .flow-container {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 20px;
+            min-height: 250px;
+            border: 2px dashed #ddd;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .data-packet {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            color: white;
+            padding: 12px 18px;
+            border-radius: 25px;
+            display: inline-block;
+            margin: 8px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            position: absolute;
+            opacity: 0;
+            transform: translateX(-100px);
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+            animation: packetFlow 4s ease-in-out;
+        }
+
+        @keyframes packetFlow {
+            0% { opacity: 0; transform: translateX(-100px) scale(0.8); }
+            15% { opacity: 1; transform: translateX(0) scale(1); }
+            85% { opacity: 1; transform: translateX(calc(100vw - 300px)) scale(1); }
+            100% { opacity: 0; transform: translateX(calc(100vw - 200px)) scale(0.8); }
+        }
+
+        /* Quiz Section */
+        .quiz-container {
+            background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+            border-radius: 15px;
+            padding: 30px;
+            margin-top: 20px;
+        }
+
+        .quiz-question {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .question-text {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+
+        .quiz-options {
+            display: grid;
+            gap: 12px;
+        }
+
+        .quiz-option {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            padding: 15px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+
+        .quiz-option:hover {
+            background: #e3f2fd;
+            border-color: #2196f3;
+        }
+
+        .quiz-option.selected {
+            background: #e8f5e8;
+            border-color: #4caf50;
+            color: #2e7d32;
+        }
+
+        .quiz-option.correct {
+            background: #e8f5e8;
+            border-color: #4caf50;
+            color: #2e7d32;
+        }
+
+        .quiz-option.incorrect {
+            background: #ffebee;
+            border-color: #f44336;
+            color: #c62828;
+        }
+
+        .quiz-result {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .score-display {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #4caf50;
+            margin-bottom: 10px;
+        }
+
+        /* Notes Section */
+        .notes-container {
+            background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%);
+            border-radius: 15px;
+            padding: 30px;
+        }
+
+        .notes-input {
+            width: 100%;
+            min-height: 200px;
+            padding: 20px;
+            border: 2px solid #e1bee7;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-family: inherit;
+            resize: vertical;
+            transition: border-color 0.3s ease;
+        }
+
+        .notes-input:focus {
+            outline: none;
+            border-color: #9c27b0;
+            box-shadow: 0 0 0 3px rgba(156, 39, 176, 0.1);
+        }
+
+        .notes-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 15px;
+            justify-content: flex-end;
+        }
+
+        .save-button {
+            background: linear-gradient(135deg, #9c27b0 0%, #7b1fa2 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .save-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(156, 39, 176, 0.3);
+        }
+
+        /* Info Panel */
+        .info-panel {
+            background: linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 100%);
+            border: 2px solid #4caf50;
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 25px;
+            display: none;
+            box-shadow: 0 8px 25px rgba(76, 175, 80, 0.2);
+        }
+
+        .info-panel.show {
+            display: block;
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .info-title {
+            font-weight: bold;
+            color: #2e7d32;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .info-content {
+            color: #388e3c;
+            line-height: 1.7;
+            font-size: 1rem;
+        }
+
+        /* Comparison Table */
+        .comparison-section {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-top: 30px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+
+        .comparison-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 25px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95rem;
+            overflow: hidden;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .comparison-table th {
+            background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
+            color: white;
+            padding: 18px 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .comparison-table td {
+            padding: 15px;
+            border-bottom: 1px solid #e9ecef;
+            transition: background-color 0.3s ease;
+        }
+
+        .comparison-table tr:hover td {
+            background: #f8f9fa;
+        }
+
+        .comparison-table tr:nth-child(even) td {
+            background: #fdfdfd;
+        }
+
+        /* Loading States */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .models-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .platform-title {
+                font-size: 2.2rem;
+            }
+            
+            .content-area {
+                padding: 20px;
+            }
+            
+            .nav-tabs {
+                flex-wrap: wrap;
+            }
+            
+            .demo-controls {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+
+        /* Achievement Badges */
+        .achievement-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #ffd700 0%, #ffb300 100%);
+            color: #8b6914;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            margin: 5px;
+            box-shadow: 0 2px 8px rgba(255, 215, 0, 0.3);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #3498db;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+    </style>
+ </head>
+ <body>
+  <main class="learning-platform">
+   <header class="platform-header">
+    <h1 class="platform-title" id="platformTitle">🌐 網路模型互動學習平台</h1>
+    <p class="welcome-message" id="welcomeMessage">歡迎來到最完整的OSI與TCP/IP模型學習體驗！</p>
+    <div class="progress-bar-container">
+     <div class="progress-bar" id="progressBar"></div>
+    </div>
+    <div class="progress-text" id="progressText">
+     學習進度: 0%
+    </div>
+   </header>
+   <nav class="nav-tabs"><button class="nav-tab active" onclick="switchTab('learn')">📚 互動學習</button> <button class="nav-tab" onclick="switchTab('quiz')">🧠 知識測驗</button> <button class="nav-tab" onclick="switchTab('demo')">🎬 動態演示</button> <button class="nav-tab" onclick="switchTab('notes')">📝 學習筆記</button> <button class="nav-tab" onclick="switchTab('progress')">📊 學習統計</button>
+   </nav>
+   <div class="content-area"><!-- Learning Tab -->
+    <div id="learn-tab" class="tab-content active">
+     <div class="models-grid">
+      <div class="model-card">
+       <h2 class="model-title"><span class="model-icon">🏗️</span> OSI 七層模型</h2>
+       <div class="layer-item" data-layer="osi-7" onclick="showLayerInfo('osi', 7)"><span class="layer-number">第7層</span>
+        <div class="layer-name">
+         🌐 應用層 (Application)
+        </div>
+        <div class="layer-description">
+         提供網路服務給應用程式，如網頁瀏覽、電子郵件
+        </div>
+       </div>
+       <div class="layer-item" data-layer="osi-6" onclick="showLayerInfo('osi', 6)"><span class="layer-number">第6層</span>
+        <div class="layer-name">
+         🎭 表現層 (Presentation)
+        </div>
+        <div class="layer-description">
+         資料加密、壓縮、格式轉換
+        </div>
+       </div>
+       <div class="layer-item" data-layer="osi-5" onclick="showLayerInfo('osi', 5)"><span class="layer-number">第5層</span>
+        <div class="layer-name">
+         🤝 會議層 (Session)
+        </div>
+        <div class="layer-description">
+         建立、管理、終止應用程式間的會議
+        </div>
+       </div>
+       <div class="layer-item" data-layer="osi-4" onclick="showLayerInfo('osi', 4)"><span class="layer-number">第4層</span>
+        <div class="layer-name">
+         🚚 傳輸層 (Transport)
+        </div>
+        <div class="layer-description">
+         端對端資料傳輸控制，確保資料完整性
+        </div>
+       </div>
+       <div class="layer-item" data-layer="osi-3" onclick="showLayerInfo('osi', 3)"><span class="layer-number">第3層</span>
+        <div class="layer-name">
+         🗺️ 網路層 (Network)
+        </div>
+        <div class="layer-description">
+         路由選擇與邏輯定址
+        </div>
+       </div>
+       <div class="layer-item" data-layer="osi-2" onclick="showLayerInfo('osi', 2)"><span class="layer-number">第2層</span>
+        <div class="layer-name">
+         🔗 資料鏈結層 (Data Link)
+        </div>
+        <div class="layer-description">
+         錯誤偵測與實體定址
+        </div>
+       </div>
+       <div class="layer-item" data-layer="osi-1" onclick="showLayerInfo('osi', 1)"><span class="layer-number">第1層</span>
+        <div class="layer-name">
+         ⚡ 實體層 (Physical)
+        </div>
+        <div class="layer-description">
+         電氣訊號與實體連接
+        </div>
+       </div>
+      </div>
+      <div class="model-card">
+       <h2 class="model-title"><span class="model-icon">🌍</span> TCP/IP 四層模型</h2>
+       <div class="layer-item tcp-layer" data-layer="tcp-4" onclick="showLayerInfo('tcp', 4)"><span class="layer-number">第4層</span>
+        <div class="layer-name">
+         🌐 應用層 (Application)
+        </div>
+        <div class="layer-description">
+         HTTP, HTTPS, FTP, SMTP, DNS
+        </div>
+       </div>
+       <div class="layer-item tcp-layer" data-layer="tcp-3" onclick="showLayerInfo('tcp', 3)"><span class="layer-number">第3層</span>
+        <div class="layer-name">
+         🚚 傳輸層 (Transport)
+        </div>
+        <div class="layer-description">
+         TCP, UDP 協定
+        </div>
+       </div>
+       <div class="layer-item tcp-layer" data-layer="tcp-2" onclick="showLayerInfo('tcp', 2)"><span class="layer-number">第2層</span>
+        <div class="layer-name">
+         🌍 網際網路層 (Internet)
+        </div>
+        <div class="layer-description">
+         IP, ICMP, ARP 協定
+        </div>
+       </div>
+       <div class="layer-item tcp-layer" data-layer="tcp-1" onclick="showLayerInfo('tcp', 1)"><span class="layer-number">第1層</span>
+        <div class="layer-name">
+         🔌 網路存取層 (Network Access)
+        </div>
+        <div class="layer-description">
+         乙太網路、WiFi、實體傳輸
+        </div>
+       </div>
+      </div>
+     </div>
+     <div class="info-panel" id="infoPanel">
+      <div class="info-title" id="infoTitle"></div>
+      <div class="info-content" id="infoContent"></div>
+     </div>
+     <div class="comparison-section">
+      <h3 class="comparison-title"><span>📋</span> 詳細對比表</h3>
+      <table class="comparison-table">
+       <thead>
+        <tr>
+         <th>OSI 模型</th>
+         <th>TCP/IP 模型</th>
+         <th>主要功能</th>
+         <th>常見協定/技術</th>
+         <th>實際應用</th>
+        </tr>
+       </thead>
+       <tbody>
+        <tr>
+         <td>應用層</td>
+         <td rowspan="3">應用層</td>
+         <td>提供網路服務介面</td>
+         <td>HTTP, HTTPS, FTP, SMTP</td>
+         <td>網頁瀏覽、檔案傳輸、電子郵件</td>
+        </tr>
+        <tr>
+         <td>表現層</td>
+         <td>資料格式轉換、加密</td>
+         <td>SSL/TLS, JPEG, MPEG</td>
+         <td>資料加密、圖像壓縮</td>
+        </tr>
+        <tr>
+         <td>會議層</td>
+         <td>會議建立與管理</td>
+         <td>NetBIOS, RPC, SQL</td>
+         <td>遠端程序呼叫、資料庫連接</td>
+        </tr>
+        <tr>
+         <td>傳輸層</td>
+         <td>傳輸層</td>
+         <td>端對端可靠傳輸</td>
+         <td>TCP, UDP</td>
+         <td>可靠資料傳輸、即時通訊</td>
+        </tr>
+        <tr>
+         <td>網路層</td>
+         <td>網際網路層</td>
+         <td>路由與邏輯定址</td>
+         <td>IP, ICMP, ARP, OSPF</td>
+         <td>路由器、IP位址分配</td>
+        </tr>
+        <tr>
+         <td>資料鏈結層</td>
+         <td rowspan="2">網路存取層</td>
+         <td>錯誤偵測與修正</td>
+         <td>Ethernet, PPP, WiFi</td>
+         <td>交換器、無線網路</td>
+        </tr>
+        <tr>
+         <td>實體層</td>
+         <td>實體訊號傳輸</td>
+         <td>電纜, 光纖, 無線電波</td>
+         <td>網路線、光纖、天線</td>
+        </tr>
+       </tbody>
+      </table>
+     </div>
+    </div><!-- Quiz Tab -->
+    <div id="quiz-tab" class="tab-content">
+     <div class="quiz-container">
+      <h3 class="demo-title" id="quizTitle"><span>🧠</span> 網路模型知識測驗</h3>
+      <div id="quizContent">
+       <div class="quiz-question">
+        <div class="question-text">
+         1. OSI模型的第4層是什麼？
+        </div>
+        <div class="quiz-options">
+         <div class="quiz-option" onclick="selectOption(this, false)">
+          A. 網路層
+         </div>
+         <div class="quiz-option" onclick="selectOption(this, true)">
+          B. 傳輸層
+         </div>
+         <div class="quiz-option" onclick="selectOption(this, false)">
+          C. 會議層
+         </div>
+         <div class="quiz-option" onclick="selectOption(this, false)">
+          D. 應用層
+         </div>
+        </div>
+       </div>
+       <div class="quiz-question">
+        <div class="question-text">
+         2. TCP/IP模型有幾層？
+        </div>
+        <div class="quiz-options">
+         <div class="quiz-option" onclick="selectOption(this, false)">
+          A. 5層
+         </div>
+         <div class="quiz-option" onclick="selectOption(this, false)">
+          B. 6層
+         </div>
+         <div class="quiz-option" onclick="selectOption(this, false)">
+          C. 7層
+         </div>
+         <div class="quiz-option" onclick="selectOption(this, true)">
+          D. 4層
+         </div>
+        </div>
+       </div>
+       <div class="quiz-question">
+        <div class="question-text">
+         3. HTTP協定屬於哪一層？
+        </div>
+        <div class="quiz-options">
+         <div class="quiz-option" onclick="selectOption(this, true)">
+          A. 應用層
+         </div>
+         <div class="quiz-option" onclick="selectOption(this, false)">
+          B. 傳輸層
+         </div>
+         <div class="quiz-option" onclick="selectOption(this, false)">
+          C. 網路層
+         </div>
+         <div class="quiz-option" onclick="selectOption(this, false)">
+          D. 實體層
+         </div>
+        </div>
+       </div>
+      </div><button class="demo-button" onclick="submitQuiz()" style="margin-top: 20px;">提交答案</button>
+      <div id="quizResult" class="quiz-result" style="display: none;">
+       <div class="score-display" id="scoreDisplay">
+        0/3
+       </div>
+       <p>恭喜完成測驗！繼續努力學習吧！</p>
+      </div>
+     </div>
+    </div><!-- Demo Tab -->
+    <div id="demo-tab" class="tab-content">
+     <div class="demo-section">
+      <h3 class="demo-title" id="tutorialTitle"><span>🎬</span> 動態資料傳輸演示</h3>
+      <div class="demo-controls"><button class="demo-button" onclick="startDataFlow('send')">📤 發送資料演示</button> <button class="demo-button" onclick="startDataFlow('receive')">📥 接收資料演示</button> <button class="demo-button secondary" onclick="clearDemo()">🗑️ 清除演示</button>
+      </div>
+      <div class="flow-container" id="flowContainer">
+       <p style="text-align: center; color: #666; margin-top: 100px; font-size: 1.1rem;">🚀 點擊上方按鈕開始觀看資料封包在網路層級間的傳輸過程</p>
+      </div>
+     </div>
+    </div><!-- Notes Tab -->
+    <div id="notes-tab" class="tab-content">
+     <div class="notes-container">
+      <h3 class="demo-title"><span>📝</span> 我的學習筆記</h3><textarea id="notesInput" class="notes-input" placeholder="在這裡記錄你的學習心得、重點整理或疑問...
+
+例如：
+• OSI七層模型的記憶口訣
+• TCP與UDP的差異
+• 實際應用場景的理解
+• 需要進一步學習的主題"></textarea>
+      <div class="notes-actions"><button class="save-button" onclick="saveNotes()"> <span id="saveButtonText">💾 儲存筆記</span> </button>
+      </div>
+     </div>
+    </div><!-- Progress Tab -->
+    <div id="progress-tab" class="tab-content">
+     <div class="stats-grid">
+      <div class="stat-card">
+       <div class="stat-number" id="totalScore">
+        0
+       </div>
+       <div class="stat-label">
+        測驗總分
+       </div>
+      </div>
+      <div class="stat-card">
+       <div class="stat-number" id="completedLessons">
+        0
+       </div>
+       <div class="stat-label">
+        完成課程
+       </div>
+      </div>
+      <div class="stat-card">
+       <div class="stat-number" id="studyTime">
+        0
+       </div>
+       <div class="stat-label">
+        學習時間(分鐘)
+       </div>
+      </div>
+      <div class="stat-card">
+       <div class="stat-number" id="notesCount">
+        0
+       </div>
+       <div class="stat-label">
+        筆記字數
+       </div>
+      </div>
+     </div>
+     <div class="achievement-badge">
+      🏆 初學者
+     </div>
+     <div class="achievement-badge">
+      📚 勤奮學習者
+     </div>
+     <div class="achievement-badge">
+      🎯 測驗達人
+     </div>
+    </div>
+   </div>
+  </main>
+  <script>
+        // Default configuration
+        const defaultConfig = {
+            platform_title: "🌐 網路模型互動學習平台",
+            welcome_message: "歡迎來到最完整的OSI與TCP/IP模型學習體驗！",
+            quiz_title: "網路模型知識測驗",
+            tutorial_title: "動態資料傳輸演示"
+        };
+
+        // Global variables
+        let currentData = [];
+        let learningProgress = 0;
+        let quizAnswers = [];
+        let startTime = Date.now();
+
+        // Layer information database
+        const layerInfo = {
+            osi: {
+                7: {
+                    title: "🌐 OSI 第7層 - 應用層 (Application Layer)",
+                    content: "應用層是OSI模型的最高層，直接為應用程式提供網路服務。這一層包括各種網路應用程式和服務，如網頁瀏覽器、電子郵件客戶端、檔案傳輸程式等。\n\n🔹 主要功能：\n• 提供網路服務介面\n• 處理使用者請求\n• 管理應用程式間的通訊\n\n🔹 常見協定：HTTP/HTTPS、FTP、SMTP、POP3、IMAP、Telnet、SSH\n\n🔹 實際應用：當你使用瀏覽器訪問網站時，就是在應用層進行操作。"
+                },
+                6: {
+                    title: "🎭 OSI 第6層 - 表現層 (Presentation Layer)",
+                    content: "表現層負責資料的格式轉換、加密解密、壓縮解壓縮等功能，確保不同系統間的資料能夠正確解讀。\n\n🔹 主要功能：\n• 資料格式轉換（ASCII、EBCDIC）\n• 資料加密與解密\n• 資料壓縮與解壓縮\n• 字元編碼處理\n\n🔹 常見技術：SSL/TLS、JPEG、MPEG、GIF、ASCII編碼\n\n🔹 實際應用：當你在網站上看到加密的HTTPS連接時，就是表現層在工作。"
+                },
+                5: {
+                    title: "🤝 OSI 第5層 - 會議層 (Session Layer)",
+                    content: "會議層負責建立、管理和終止應用程式間的會議連接，控制對話的建立與結束。\n\n🔹 主要功能：\n• 建立、維護、終止會議\n• 管理資料交換方向\n• 提供會議檢查點\n• 會議恢復功能\n\n🔹 常見協定：NetBIOS、RPC、SQL Session、PPTP\n\n🔹 實際應用：當你登入網站並保持登入狀態時，會議層就在管理這個會議。"
+                },
+                4: {
+                    title: "🚚 OSI 第4層 - 傳輸層 (Transport Layer)",
+                    content: "傳輸層提供端對端的可靠資料傳輸服務，是確保資料完整性的關鍵層級。\n\n🔹 主要功能：\n• 資料分割與重組\n• 錯誤偵測與修正\n• 流量控制\n• 擁塞控制\n• 埠號管理\n\n🔹 主要協定：\n• TCP（傳輸控制協定）- 可靠傳輸\n• UDP（使用者資料包協定）- 快速傳輸\n\n🔹 實際應用：下載檔案時TCP確保資料完整，線上遊戲使用UDP追求速度。"
+                },
+                3: {
+                    title: "🗺️ OSI 第3層 - 網路層 (Network Layer)",
+                    content: "網路層負責路由選擇和邏輯定址，決定資料封包從來源到目的地的最佳路徑。\n\n🔹 主要功能：\n• 邏輯定址（IP位址）\n• 路由選擇\n• 封包轉送\n• 路徑決定\n• 擁塞控制\n\n🔹 主要協定：IP、ICMP、ARP、OSPF、BGP、RIP\n\n🔹 實際應用：路由器工作在這一層，決定資料包如何在網際網路中傳輸。"
+                },
+                2: {
+                    title: "🔗 OSI 第2層 - 資料鏈結層 (Data Link Layer)",
+                    content: "資料鏈結層負責相鄰節點間的可靠資料傳輸，提供錯誤偵測與修正功能。\n\n🔹 主要功能：\n• 實體定址（MAC位址）\n• 錯誤偵測與修正\n• 流量控制\n• 框架同步\n• 存取控制\n\n🔹 常見技術：Ethernet、PPP、WiFi、藍牙、Token Ring\n\n🔹 實際應用：交換器工作在這一層，使用MAC位址轉送資料框架。"
+                },
+                1: {
+                    title: "⚡ OSI 第1層 - 實體層 (Physical Layer)",
+                    content: "實體層是OSI模型的最底層，負責實際的電氣訊號傳輸和實體連接。\n\n🔹 主要功能：\n• 電氣訊號傳輸\n• 機械規格定義\n• 時序控制\n• 電壓準位定義\n• 實體連接管理\n\n🔹 實體媒體：\n• 雙絞線（網路線）\n• 光纖電纜\n• 無線電波\n• 同軸電纜\n\n🔹 實際應用：網路線、光纖、WiFi天線等都屬於實體層設備。"
+                }
+            },
+            tcp: {
+                4: {
+                    title: "🌐 TCP/IP 第4層 - 應用層 (Application Layer)",
+                    content: "TCP/IP應用層整合了OSI模型的應用層、表現層和會議層功能，直接為使用者提供網路服務。\n\n🔹 主要功能：\n• 網路服務提供\n• 資料格式處理\n• 會議管理\n• 使用者介面\n\n🔹 常見協定：\n• HTTP/HTTPS - 網頁傳輸\n• FTP - 檔案傳輸\n• SMTP - 電子郵件發送\n• DNS - 域名解析\n• DHCP - 動態IP分配\n\n🔹 實際應用：所有網路應用程式都在這一層運作。"
+                },
+                3: {
+                    title: "🚚 TCP/IP 第3層 - 傳輸層 (Transport Layer)",
+                    content: "TCP/IP傳輸層與OSI傳輸層功能相同，提供端對端的資料傳輸服務。\n\n🔹 主要協定：\n• TCP（傳輸控制協定）\n  - 連接導向\n  - 可靠傳輸\n  - 錯誤修正\n  - 流量控制\n\n• UDP（使用者資料包協定）\n  - 無連接\n  - 快速傳輸\n  - 低延遲\n  - 簡單高效\n\n🔹 埠號管理：區分不同應用程式的資料流\n\n🔹 實際應用：網頁使用TCP，線上遊戲使用UDP。"
+                },
+                2: {
+                    title: "🌍 TCP/IP 第2層 - 網際網路層 (Internet Layer)",
+                    content: "網際網路層對應OSI的網路層，是TCP/IP協定族的核心，負責封包的路由和轉送。\n\n🔹 主要協定：\n• IPv4/IPv6 - 網際網路協定\n• ICMP - 網際網路控制訊息協定\n• ARP - 位址解析協定\n• RARP - 反向位址解析協定\n\n🔹 主要功能：\n• IP位址管理\n• 封包路由\n• 分片與重組\n• 生存時間控制\n\n🔹 實際應用：所有網際網路通訊都依賴這一層。"
+                },
+                1: {
+                    title: "🔌 TCP/IP 第1層 - 網路存取層 (Network Access Layer)",
+                    content: "網路存取層整合了OSI模型的資料鏈結層和實體層功能，負責實體網路的存取。\n\n🔹 主要功能：\n• 實體網路存取\n• 資料框架處理\n• 錯誤偵測\n• 實體定址\n• 訊號傳輸\n\n🔹 常見技術：\n• 乙太網路（Ethernet）\n• WiFi（802.11）\n• PPP（點對點協定）\n• ATM（非同步傳輸模式）\n\n🔹 實際應用：網路卡、交換器、無線網路設備都在這一層工作。"
+                }
+            }
+        };
+
+        // Quiz questions
+        const quizQuestions = [
+            {
+                question: "OSI模型的第4層是什麼？",
+                options: ["A. 網路層", "B. 傳輸層", "C. 會議層", "D. 應用層"],
+                correct: 1
+            },
+            {
+                question: "TCP/IP模型有幾層？",
+                options: ["A. 5層", "B. 6層", "C. 7層", "D. 4層"],
+                correct: 3
+            },
+            {
+                question: "HTTP協定屬於哪一層？",
+                options: ["A. 應用層", "B. 傳輸層", "C. 網路層", "D. 實體層"],
+                correct: 0
+            }
+        ];
+
+        // Local storage for data persistence
+        function loadData() {
+            const saved = localStorage.getItem('osi_learning_data');
+            if (saved) {
+                try {
+                    currentData = JSON.parse(saved);
+                    updateProgressDisplay();
+                    updateStats();
+                } catch (e) {
+                    console.error('Failed to load saved data');
+                }
+            }
+        }
+
+        function saveData() {
+            try {
+                localStorage.setItem('osi_learning_data', JSON.stringify(currentData));
+            } catch (e) {
+                console.error('Failed to save data');
+            }
+        }
+
+        // Tab switching
+        function switchTab(tabName) {
+            // Update tab buttons
+            document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Update tab content
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.getElementById(tabName + '-tab').classList.add('active');
+            
+            // Update progress
+            updateLearningProgress(tabName);
+        }
+
+        // Layer information display
+        function showLayerInfo(model, layer) {
+            // Remove active class from all layers
+            document.querySelectorAll('.layer-item').forEach(l => l.classList.remove('active'));
+            
+            // Add active class to clicked layer
+            document.querySelector(`[data-layer="${model}-${layer}"]`).classList.add('active');
+            
+            // Show info panel
+            const info = layerInfo[model][layer];
+            document.getElementById('infoTitle').innerHTML = info.title;
+            document.getElementById('infoContent').innerHTML = info.content.replace(/\n/g, '<br>');
+            document.getElementById('infoPanel').classList.add('show');
+            
+            // Update progress
+            updateLearningProgress('layer-viewed');
+        }
+
+        // Data flow demonstration
+        function startDataFlow(direction) {
+            const container = document.getElementById('flowContainer');
+            container.innerHTML = '<p style="text-align: center; color: #666; margin-top: 100px;">🚀 資料封包傳輸中...</p>';
+            
+            const sendLayers = [
+                '📱 應用層：用戶發送HTTP請求',
+                '🚚 傳輸層：TCP添加埠號和序列號',
+                '🌍 網路層：IP添加來源和目標位址',
+                '🔗 資料鏈結層：添加MAC位址框架',
+                '⚡ 實體層：轉換為電氣訊號傳輸'
+            ];
+            
+            const receiveLayers = [
+                '⚡ 實體層：接收電氣訊號',
+                '🔗 資料鏈結層：檢查MAC位址框架',
+                '🌍 網路層：檢查IP位址並路由',
+                '🚚 傳輸層：TCP重組資料並確認',
+                '📱 應用層：HTTP回應顯示網頁'
+            ];
+            
+            const layers = direction === 'send' ? sendLayers : receiveLayers;
+            
+            layers.forEach((layer, index) => {
+                setTimeout(() => {
+                    createPacket(layer, container);
+                }, index * 1000);
+            });
+            
+            setTimeout(() => {
+                const successMessage = direction === 'send' ? 
+                    '✅ 資料發送完成！封包已成功送達目的地' : 
+                    '✅ 資料接收完成！網頁內容已成功顯示';
+                container.innerHTML = `<p style="text-align: center; color: #4caf50; margin-top: 100px; font-weight: bold; font-size: 1.2rem;">${successMessage}</p>`;
+            }, layers.length * 1000 + 3000);
+            
+            updateLearningProgress('demo-viewed');
+        }
+
+        function createPacket(text, container) {
+            const packet = document.createElement('div');
+            packet.className = 'data-packet';
+            packet.textContent = text;
+            packet.style.top = Math.random() * 180 + 30 + 'px';
+            packet.style.left = '0px';
+            container.appendChild(packet);
+            
+            setTimeout(() => {
+                if (packet.parentNode) {
+                    packet.parentNode.removeChild(packet);
+                }
+            }, 4000);
+        }
+
+        function clearDemo() {
+            const container = document.getElementById('flowContainer');
+            container.innerHTML = '<p style="text-align: center; color: #666; margin-top: 100px; font-size: 1.1rem;">🚀 點擊上方按鈕開始觀看資料封包在網路層級間的傳輸過程</p>';
+        }
+
+        // Quiz functionality
+        function selectOption(element, isCorrect) {
+            const options = element.parentNode.querySelectorAll('.quiz-option');
+            options.forEach(opt => opt.classList.remove('selected'));
+            element.classList.add('selected');
+            
+            const questionIndex = Array.from(document.querySelectorAll('.quiz-question')).indexOf(element.closest('.quiz-question'));
+            quizAnswers[questionIndex] = isCorrect;
+        }
+
+        async function submitQuiz() {
+            const options = document.querySelectorAll('.quiz-option');
+            options.forEach((opt, index) => {
+                const questionIndex = Math.floor(index / 4);
+                const optionIndex = index % 4;
+                const isCorrect = quizQuestions[questionIndex].correct === optionIndex;
+                
+                if (isCorrect) {
+                    opt.classList.add('correct');
+                } else if (opt.classList.contains('selected') && !isCorrect) {
+                    opt.classList.add('incorrect');
+                }
+            });
+            
+            const score = quizAnswers.filter(answer => answer === true).length;
+            document.getElementById('scoreDisplay').textContent = `${score}/3`;
+            document.getElementById('quizResult').style.display = 'block';
+            
+            // Save quiz result to local storage
+            currentData.push({
+                quiz_score: score,
+                completed_lessons: 'quiz',
+                learning_progress: Math.min(learningProgress + 20, 100),
+                timestamp: new Date().toISOString()
+            });
+            saveData();
+            showToast('測驗結果已保存！');
+            
+            updateLearningProgress('quiz-completed');
+        }
+
+        // Notes functionality
+        async function saveNotes() {
+            const notesText = document.getElementById('notesInput').value;
+            const saveButton = document.getElementById('saveButtonText');
+            
+            if (!notesText.trim()) {
+                showToast("請先輸入一些筆記內容");
+                return;
+            }
+            
+            saveButton.innerHTML = '<span class="loading"></span>儲存中...';
+            
+            currentData.push({
+                notes: notesText,
+                completed_lessons: 'notes',
+                learning_progress: Math.min(learningProgress + 10, 100),
+                timestamp: new Date().toISOString()
+            });
+            saveData();
+            showToast('筆記已成功儲存！');
+            updateLearningProgress('notes-saved');
+            
+            saveButton.innerHTML = '💾 儲存筆記';
+        }
+
+        // Progress tracking
+        function updateLearningProgress(action) {
+            switch(action) {
+                case 'layer-viewed':
+                    learningProgress = Math.min(learningProgress + 5, 100);
+                    break;
+                case 'demo-viewed':
+                    learningProgress = Math.min(learningProgress + 15, 100);
+                    break;
+                case 'quiz-completed':
+                    learningProgress = Math.min(learningProgress + 25, 100);
+                    break;
+                case 'notes-saved':
+                    learningProgress = Math.min(learningProgress + 10, 100);
+                    break;
+            }
+            updateProgressDisplay();
+        }
+
+        function updateProgressDisplay() {
+            const progressBar = document.getElementById('progressBar');
+            const progressText = document.getElementById('progressText');
+            
+            progressBar.style.width = learningProgress + '%';
+            progressText.textContent = `學習進度: ${learningProgress}%`;
+        }
+
+        function updateStats() {
+            const totalScore = currentData.filter(item => item.quiz_score !== undefined)
+                .reduce((sum, item) => sum + item.quiz_score, 0);
+            const completedLessons = new Set(currentData.map(item => item.completed_lessons)).size;
+            const studyTime = Math.floor((Date.now() - startTime) / 60000);
+            const notesCount = currentData.filter(item => item.notes)
+                .reduce((sum, item) => sum + item.notes.length, 0);
+            
+            document.getElementById('totalScore').textContent = totalScore;
+            document.getElementById('completedLessons').textContent = completedLessons;
+            document.getElementById('studyTime').textContent = studyTime;
+            document.getElementById('notesCount').textContent = notesCount;
+        }
+
+        // Toast notification
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: #4caf50;
+                color: white;
+                padding: 15px 20px;
+                border-radius: 10px;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+                z-index: 1000;
+                animation: slideIn 0.3s ease;
+            `;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
+
+        // Initialize everything
+        document.addEventListener('DOMContentLoaded', function() {
+            loadData();
+            updateProgressDisplay();
+            updateStats();
+        });
+    </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'999014c2c555843a',t:'MTc2MjIxNzA0Ny4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
