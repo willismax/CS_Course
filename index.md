@@ -1,5 +1,3 @@
-# 💻 CS Course - 計算機科學教學平台
-
 歡迎來到 CS Course！這是一個結合理論與實作的計算機科學教學平台，提供互動式視覺化工具和深入淺出的教學內容。
 
 <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; border-radius: 10px; color: white; margin: 20px 0;">
