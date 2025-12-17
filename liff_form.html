@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>助教提問</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { padding: 20px; background-color: #f8f9fa; }
+        .container { max-width: 600px; margin-top: 20px; }
+        textarea { resize: none; height: 150px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h4 class="mb-3">請輸入您的問題</h4>
+        <div class="mb-3">
+            <textarea class="form-control" id="questionInput" placeholder="請詳細描述您的問題，例如：請問這題微積分怎麼算？..." required></textarea>
+        </div>
+        <button id="sendBtn" class="btn btn-success w-100" onclick="sendQuestion()">送出提問</button>
+        <div id="status" class="mt-2 text-center text-muted" style="font-size: 0.9em;"></div>
+    </div>
+
+    <!-- 載入 LIFF SDK -->
+    <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+    <script>
+        // 初始化 LIFF
+        // 請將 YOUR_LIFF_ID 替換為您在 LINE Developers Console 申請的 LIFF ID
+        const LIFF_ID = "YOUR_LIFF_ID"; 
+
+        async function initializeLiff() {
+            try {
+                await liff.init({ liffId: LIFF_ID });
+                if (!liff.isLoggedIn()) {
+                    liff.login();
+                }
+            } catch (error) {
+                console.error("LIFF 初始化失敗", error);
+                document.getElementById('status').innerText = "初始化失敗，請檢查 LIFF ID 設定";
+            }
+        }
+
+        async function sendQuestion() {
+            const text = document.getElementById('questionInput').value.trim();
+            if (!text) {
+                alert("請輸入問題內容！");
+                return;
+            }
+
+            try {
+                document.getElementById('sendBtn').disabled = true;
+                document.getElementById('sendBtn').innerText = "傳送中...";
+
+                // 使用 liff.sendMessages 模擬使用者傳送訊息
+                // 這會觸發 n8n 的 Webhook，就像使用者直接在聊天室打字一樣
+                await liff.sendMessages([
+                    {
+                        type: 'text',
+                        text: text
+                    }
+                ]);
+
+                // 傳送成功後關閉視窗
+                liff.closeWindow();
+
+            } catch (error) {
+                console.error("訊息傳送失敗", error);
+                alert("傳送失敗，請確認網路連線或稍後再試.\n錯誤: " + error.message);
+                document.getElementById('sendBtn').disabled = false;
+                document.getElementById('sendBtn').innerText = "送出提問";
+            }
+        }
+
+        // 啟動初始化
+        // 注意：實際部署時，請確保此頁面是透過 HTTPS 協定存取
+        initializeLiff();
+    </script>
+</body>
+</html>
