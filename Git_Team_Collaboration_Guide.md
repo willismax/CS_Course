@@ -223,7 +223,7 @@ RPG Maker 項目會產生許多臨時文件和大型二進制文件，需要正�
 # RPG Maker 臨時文件
 *.rpgproject
 *.rxproj
-*.rvproj2
+*.rvproj
 *.autosave
 
 # 編輯器臨時文件
@@ -424,11 +424,11 @@ git push origin develop
 git branch -d release/v1.0
 ```
 
-**建立變更日誌**（CHANGELOG.md）：
+**建立變更日誌**（CHANGELOG.md）:
 ```markdown
 # 變更日誌
 
-## [1.0.0] - 2024-12-24
+## [1.0.0] - YYYY-MM-DD
 
 ### 新增
 - 完整的戰鬥系統
