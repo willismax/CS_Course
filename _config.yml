@@ -23,6 +23,7 @@ github_username: willismax
 header_pages:
   - index.md
   - Git_Tutorial.md
+  - Git_Team_Collaboration_Guide.md
   - Docker_Tutorial.md
   - SQL_Tutorial.md
 
