@@ -40,6 +40,7 @@
 - [Git Tutorial](Git_Tutorial.md)
 - [Git Practice](git practice.html)
 - [Pull Request Tutorial](Pull_Request_Tutorial.md)
+- [Git 團隊協作開發指南](Git_Team_Collaboration_Guide.md) - 以遊戲開發為例
 
 ### 🐧 Linux 系統
 - [Linux 基本指令教學](Linus基本指令.md)

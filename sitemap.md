@@ -183,11 +183,20 @@ permalink: /sitemap/
   - 協作開發
   - Code Review
 
+- [Git 團隊協作開發指南](../Git_Team_Collaboration_Guide.md)
+  - Git Flow 工作流程
+  - 遊戲開發協作實例（RPG Maker）
+  - 處理大型二進制文件
+  - 團隊最佳實踐
+  - 衝突解決策略
+
 #### 學習重點
 - ✅ 掌握 Git 基本操作
 - ✅ 理解分支管理
 - ✅ 學習團隊協作
 - ✅ 了解開源貢獻流程
+- ✅ 掌握團隊開發工作流程
+- ✅ 學習專業協作實踐
 
 ---
 
