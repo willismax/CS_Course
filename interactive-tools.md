@@ -31,6 +31,61 @@ permalink: /interactive-tools/
 - 學習動態規劃與遞迴的差異
 - 掌握二元搜尋的應用時機
 
+### 🧊 排序演算法 3D 實驗室
+<div style="background: linear-gradient(135deg, #2c54d6 0%, #1fc0d6 100%); padding: 20px; border-radius: 10px; color: white; margin: 20px 0;">
+  <h4 style="color: white; margin-top: 0;">功能特色</h4>
+  <ul style="color: white;">
+    <li>泡沫、選擇、插入、希爾、合併、快速、堆積 7 種排序</li>
+    <li>立體長條動畫：交換時走弧線、合併排序有暫存陣列後排</li>
+    <li>Python、C、Java 程式碼同步亮起正在執行的那一行</li>
+    <li>時間軸可前後拖曳、單步執行，停在第 0 步可拖曳長條改數值</li>
+  </ul>
+  <a href="../sorting-lab/" style="display: inline-block; padding: 10px 20px; background: white; color: #2c54d6; text-decoration: none; border-radius: 5px; font-weight: 600; margin-top: 10px;">🚀 開始使用</a>
+</div>
+
+**學習重點：**
+- 比較不同資料型態（隨機、幾乎排好、反向、大量重複）下的步驟數
+- 理解穩定性與額外空間的差別
+- 把每一步動畫對應回程式碼
+
+### 🌳 二元樹 3D 實驗室
+<div style="background: linear-gradient(135deg, #5a3dd0 0%, #2f7eea 100%); padding: 20px; border-radius: 10px; color: white; margin: 20px 0;">
+  <h4 style="color: white; margin-top: 0;">功能特色</h4>
+  <ul style="color: white;">
+    <li>前序、中序、後序、層序走訪動畫</li>
+    <li>走訪者沿著樹的外圍繞一圈：經過左側、下方、右側分別是前、中、後序</li>
+    <li>由「前序＋中序」或「後序＋中序」一步步反推二元樹</li>
+    <li>挑戰模式：自己點出走訪順序或每一步的根</li>
+  </ul>
+  <a href="../tree-lab/" style="display: inline-block; padding: 10px 20px; background: white; color: #5a3dd0; text-decoration: none; border-radius: 5px; font-weight: 600; margin-top: 10px;">🚀 開始使用</a>
+</div>
+
+**學習重點：**
+- 分辨三種深度優先走訪與層序（佇列）的差別
+- 理解中序就是把樹投影到地面
+- 學會考試常見的「給兩個序列求原樹」題型
+
+---
+
+## 🌐 網路概論
+
+### ✂️ IP 切割 3D 實驗室
+<div style="background: linear-gradient(135deg, #e0772a 0%, #e7a400 100%); padding: 20px; border-radius: 10px; color: white; margin: 20px 0;">
+  <h4 style="color: white; margin-top: 0;">功能特色</h4>
+  <ul style="color: white;">
+    <li>32 個位元做成 3D 方塊，遮罩 AND 運算逐位元呈現</li>
+    <li>位址空間像一條長方塊，切割時真的一刀一刀切開</li>
+    <li>三種模式：位址解析、等分切割、VLSM 可變長度</li>
+    <li>練習題自動出題、即時批改，並可播放解答動畫</li>
+  </ul>
+  <a href="../subnet-lab/" style="display: inline-block; padding: 10px 20px; background: white; color: #c0601a; text-decoration: none; border-radius: 5px; font-weight: 600; margin-top: 10px;">🚀 開始使用</a>
+</div>
+
+**學習重點：**
+- 計算網路位址、廣播位址與可用主機數
+- 決定要借幾個位元、新遮罩與區塊大小
+- 用 VLSM 依需求由大到小分配網段
+
 ---
 
 ## 🖥️ 作業系統
