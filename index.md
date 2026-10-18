@@ -18,6 +18,7 @@
 
 ### 🌐 網路概論 (Computer Networks)
 - [OSI 與 TCP/IP 網路模型互動學習平台](osi.html) - 深入理解網路七層架構與四層模型的差異與應用
+- [IP 切割 3D 實驗室](subnet-lab/) - 子網路遮罩、網路位址與廣播位址、等分切割與 VLSM，附自動出題練習
 
 ### 🔐 資訊安全 (Information Security)
 - [Information Security Course](Information_Security_Course.md)
@@ -31,6 +32,8 @@
 ### 📊 資料結構與演算法
 - [Binary Tree Explanation](Binary_Tree_Explanation.md) - 二元樹結構說明
 - [排序演算法視覺化工具](Sorting_algorithm.html) - 互動式學習選擇排序、插入排序、泡沫排序、快速排序、二元搜尋與動態規劃
+- [排序演算法 3D 實驗室](sorting-lab/) - 7 種排序的立體動畫，Python、C、Java 程式碼逐行同步
+- [二元樹 3D 實驗室](tree-lab/) - 前序、中序、後序、層序走訪，以及由走訪序列反推二元樹
 - [📚 演算法學習中心](algorithms/) - 完整的演算法教學與實作指南
 
 ### 🐳 容器化技術
@@ -79,6 +82,9 @@
 | 工具名稱 | 類別 | 特色 |
 |---------|------|------|
 | [排序演算法視覺化](Sorting_algorithm.html) | 演算法 | 6種演算法、3種語言範例、動畫展示 |
+| [排序演算法 3D 實驗室](sorting-lab/) | 演算法 | 7 種排序立體動畫、程式碼逐行同步 |
+| [二元樹 3D 實驗室](tree-lab/) | 資料結構 | 四種走訪、反推二元樹、挑戰模式 |
+| [IP 切割 3D 實驗室](subnet-lab/) | 網路概論 | 遮罩與 AND、等分切割、VLSM、練習題 |
 | [CPU 排程演算法](cpu_Scheduling.html) | 作業系統 | FCFS、SJF、RR、Priority 互動學習 |
 | [程序控制表 (PCB)](cpu_pcb.html) | 作業系統 | 動態展示程序狀態轉換 |
 | [OSI 網路模型](osi.html) | 網路概論 | OSI 七層與 TCP/IP 四層模型互動學習 |
