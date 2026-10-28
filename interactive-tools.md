@@ -69,6 +69,23 @@ permalink: /interactive-tools/
 
 ## 🌐 網路概論
 
+### 🧱 OSI 與 TCP/IP 3D 實驗室
+<div style="background: linear-gradient(135deg, #e2487e 0%, #5c52d6 100%); padding: 20px; border-radius: 10px; color: white; margin: 20px 0;">
+  <h4 style="color: white; margin-top: 0;">功能特色</h4>
+  <ul style="color: white;">
+    <li>OSI 七層與 TCP/IP 四層（可切換教科書五層）立體對照，點任一層看功能、PDU、定址、協定與設備</li>
+    <li>一個 HTTP 請求的完整旅程：層層封裝、經過交換器與路由器、在伺服器端解封裝</li>
+    <li>Python、C、Java 程式真的組出 TCP／IP／乙太網路標頭，並同步亮起對應的那一行</li>
+    <li>隨機出題練習：點 3D 模型上的層作答</li>
+  </ul>
+  <a href="../osi.html" style="display: inline-block; padding: 10px 20px; background: white; color: #b0325f; text-decoration: none; border-radius: 5px; font-weight: 600; margin-top: 10px;">🚀 開始使用</a>
+</div>
+
+**學習重點：**
+- 分辨 OSI 與 TCP/IP 的分層與對應關係
+- 記住各層的 PDU：資料、區段、封包、訊框、位元
+- 理解交換器、路由器各自處理到哪一層，以及為什麼 MAC 會換、IP 不會換
+
 ### ✂️ IP 切割 3D 實驗室
 <div style="background: linear-gradient(135deg, #e0772a 0%, #e7a400 100%); padding: 20px; border-radius: 10px; color: white; margin: 20px 0;">
   <h4 style="color: white; margin-top: 0;">功能特色</h4>
