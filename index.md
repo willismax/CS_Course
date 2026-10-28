@@ -17,7 +17,7 @@
 - [程序控制表 (PCB) 互動展示](cpu_pcb.html) - 探索 CPU 程序與程序控制表的動態運作機制
 
 ### 🌐 網路概論 (Computer Networks)
-- [OSI 與 TCP/IP 網路模型互動學習平台](osi.html) - 深入理解網路七層架構與四層模型的差異與應用
+- [OSI 與 TCP/IP 3D 實驗室](osi.html) - 七層與四層模型立體對照、封包封裝與路由動畫、隨機出題練習
 - [IP 切割 3D 實驗室](subnet-lab/) - 子網路遮罩、網路位址與廣播位址、等分切割與 VLSM，附自動出題練習
 
 ### 🔐 資訊安全 (Information Security)
@@ -87,7 +87,7 @@
 | [IP 切割 3D 實驗室](subnet-lab/) | 網路概論 | 遮罩與 AND、等分切割、VLSM、練習題 |
 | [CPU 排程演算法](cpu_Scheduling.html) | 作業系統 | FCFS、SJF、RR、Priority 互動學習 |
 | [程序控制表 (PCB)](cpu_pcb.html) | 作業系統 | 動態展示程序狀態轉換 |
-| [OSI 網路模型](osi.html) | 網路概論 | OSI 七層與 TCP/IP 四層模型互動學習 |
+| [OSI 與 TCP/IP 3D 實驗室](osi.html) | 網路概論 | 立體對照、封裝與路由動畫、練習題 |
 | [Python Set 教學](python-set.html) | 程式語言 | 集合操作互動練習 |
 | [XSS 安全演示](xss-security-demo.html) | 資訊安全 | 跨站腳本攻擊實例 |
 
